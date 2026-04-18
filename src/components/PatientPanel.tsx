@@ -1,7 +1,11 @@
 import { useMemo, useState, type FormEvent } from 'react'
 import type { Patient } from '../lib/types'
 import { useFlash } from '../hooks/useFlash'
-import { useTableSort } from '../hooks/useTableSort'
+import { usePagedSlice } from '../hooks/usePagedSlice'
+import {
+  useTableSort,
+  type TableSortState,
+} from '../hooks/useTableSort'
 import {
   normalizePhoneId,
   validatePatientName,
@@ -13,6 +17,7 @@ import {
   parsePatientsImport,
 } from '../lib/importExport/patientsIo'
 import { EmptyHint } from './EmptyHint'
+import { TablePagination } from './TablePagination'
 import { MasterDataIoBar } from './MasterDataIoBar'
 import { TableSearchBar } from './TableSearchBar'
 import { Toast } from './Toast'
@@ -28,6 +33,101 @@ type Props = {
 }
 
 type FieldErrors = { name?: string; phone?: string }
+
+type PatientTableSectionProps = {
+  patients: Patient[]
+  filteredPatients: Patient[]
+  sorted: Patient[]
+  sort: TableSortState<SortKey> | null
+  toggle: (key: SortKey) => void
+}
+
+function PatientTableSection({
+  patients,
+  filteredPatients,
+  sorted,
+  sort,
+  toggle,
+}: PatientTableSectionProps) {
+  const pageData = usePagedSlice(sorted)
+  return (
+    <>
+      <div className="table-wrap">
+        <table className="data-table">
+          <caption className="sr-only">
+            Data pasien; kolom No adalah nomor urut tersimpan.
+          </caption>
+          <thead>
+            <tr>
+              <SortableTh
+                label="No"
+                sortKey="no"
+                sort={sort}
+                onSort={() => toggle('no')}
+                alignEnd
+              />
+              <SortableTh
+                label="ID"
+                sortKey="id"
+                sort={sort}
+                onSort={() => toggle('id')}
+              />
+              <SortableTh
+                label="Nama pasien"
+                sortKey="name"
+                sort={sort}
+                onSort={() => toggle('name')}
+              />
+              <SortableTh
+                label="Telepon"
+                sortKey="phone"
+                sort={sort}
+                onSort={() => toggle('phone')}
+              />
+            </tr>
+          </thead>
+          <tbody>
+            {patients.length === 0 ? (
+              <tr>
+                <td colSpan={4}>
+                  <EmptyHint
+                    title="Belum ada pasien"
+                    hint="Tambahkan pasien agar bisa dipilih di Transaksi."
+                  />
+                </td>
+              </tr>
+            ) : filteredPatients.length === 0 ? (
+              <tr>
+                <td colSpan={4}>
+                  <EmptyHint
+                    title="Tidak ada baris yang cocok"
+                    hint="Sesuaikan kata kunci atau kosongkan kolom Cari."
+                  />
+                </td>
+              </tr>
+            ) : (
+              pageData.slice.map((p) => (
+                <tr key={p.id}>
+                  <td className="num">{p.serialNo}</td>
+                  <td className="mono">{p.id}</td>
+                  <td>{p.name}</td>
+                  <td>{p.phone || '—'}</td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+      <TablePagination
+        page={pageData.page}
+        totalPages={pageData.totalPages}
+        totalItems={pageData.total}
+        pageSize={pageData.pageSize}
+        onPageChange={pageData.setPage}
+      />
+    </>
+  )
+}
 
 export function PatientPanel({
   patients,
@@ -201,72 +301,14 @@ export function PatientPanel({
           onChange={setTableSearch}
           placeholder="No, ID, nama, atau telepon…"
         />
-        <div className="table-wrap">
-          <table className="data-table">
-          <caption className="sr-only">
-            Data pasien; kolom No adalah nomor urut tersimpan.
-          </caption>
-          <thead>
-            <tr>
-              <SortableTh
-                label="No"
-                sortKey="no"
-                sort={sort}
-                onSort={() => toggle('no')}
-                alignEnd
-              />
-              <SortableTh
-                label="ID"
-                sortKey="id"
-                sort={sort}
-                onSort={() => toggle('id')}
-              />
-              <SortableTh
-                label="Nama pasien"
-                sortKey="name"
-                sort={sort}
-                onSort={() => toggle('name')}
-              />
-              <SortableTh
-                label="Telepon"
-                sortKey="phone"
-                sort={sort}
-                onSort={() => toggle('phone')}
-              />
-            </tr>
-          </thead>
-          <tbody>
-            {patients.length === 0 ? (
-              <tr>
-                <td colSpan={4}>
-                  <EmptyHint
-                    title="Belum ada pasien"
-                    hint="Tambahkan pasien agar bisa dipilih di Transaksi."
-                  />
-                </td>
-              </tr>
-            ) : filteredPatients.length === 0 ? (
-              <tr>
-                <td colSpan={4}>
-                  <EmptyHint
-                    title="Tidak ada baris yang cocok"
-                    hint="Sesuaikan kata kunci atau kosongkan kolom Cari."
-                  />
-                </td>
-              </tr>
-            ) : (
-              sorted.map((p) => (
-                <tr key={p.id}>
-                  <td className="num">{p.serialNo}</td>
-                  <td className="mono">{p.id}</td>
-                  <td>{p.name}</td>
-                  <td>{p.phone || '—'}</td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-        </div>
+        <PatientTableSection
+          key={tableSearch}
+          patients={patients}
+          filteredPatients={filteredPatients}
+          sorted={sorted}
+          sort={sort}
+          toggle={toggle}
+        />
       </div>
     </section>
   )

@@ -1,7 +1,11 @@
 import { useMemo, useState, type FormEvent } from 'react'
 import type { Product } from '../lib/types'
 import { useFlash } from '../hooks/useFlash'
-import { useTableSort } from '../hooks/useTableSort'
+import { usePagedSlice } from '../hooks/usePagedSlice'
+import {
+  useTableSort,
+  type TableSortState,
+} from '../hooks/useTableSort'
 import { formatIdr } from '../utils/format'
 import { parsePriceInput } from '../utils/parseCurrency'
 import {
@@ -14,6 +18,7 @@ import {
   parseProductsImport,
 } from '../lib/importExport/productsIo'
 import { EmptyHint } from './EmptyHint'
+import { TablePagination } from './TablePagination'
 import { MasterDataIoBar } from './MasterDataIoBar'
 import { TableSearchBar } from './TableSearchBar'
 import { Toast } from './Toast'
@@ -29,6 +34,101 @@ type Props = {
 }
 
 type FieldErrors = { name?: string; price?: string }
+
+type ProductTableSectionProps = {
+  products: Product[]
+  filteredProducts: Product[]
+  sorted: Product[]
+  sort: TableSortState<SortKey> | null
+  toggle: (key: SortKey) => void
+}
+
+function ProductTableSection({
+  products,
+  filteredProducts,
+  sorted,
+  sort,
+  toggle,
+}: ProductTableSectionProps) {
+  const pageData = usePagedSlice(sorted)
+  return (
+    <>
+      <div className="table-wrap">
+        <table className="data-table data-table--product-list">
+          <caption className="sr-only">
+            Daftar barang; kolom No adalah nomor urut tersimpan.
+          </caption>
+          <thead>
+            <tr>
+              <SortableTh
+                label="No"
+                sortKey="no"
+                sort={sort}
+                onSort={() => toggle('no')}
+                alignEnd
+              />
+              <SortableTh
+                label="Kode / nama"
+                sortKey="id"
+                sort={sort}
+                onSort={() => toggle('id')}
+              />
+              <SortableTh
+                label="Harga"
+                sortKey="price"
+                sort={sort}
+                onSort={() => toggle('price')}
+                alignEnd
+              />
+            </tr>
+          </thead>
+          <tbody>
+            {products.length === 0 ? (
+              <tr>
+                <td colSpan={3}>
+                  <EmptyHint
+                    title="Belum ada barang"
+                    hint="Gunakan formulir di atas untuk menambah item pertama."
+                  />
+                </td>
+              </tr>
+            ) : filteredProducts.length === 0 ? (
+              <tr>
+                <td colSpan={3}>
+                  <EmptyHint
+                    title="Tidak ada baris yang cocok"
+                    hint="Sesuaikan kata kunci atau kosongkan kolom Cari."
+                  />
+                </td>
+              </tr>
+            ) : (
+              pageData.slice.map((p) => (
+                <tr key={p.id}>
+                  <td className="num">{p.serialNo}</td>
+                  <td className="product-cell product-cell--inline">
+                    <span className="product-cell__code">{p.id}</span>
+                    <span className="product-cell__sep" aria-hidden="true">
+                      ·
+                    </span>
+                    <span className="product-cell__name">{p.name}</span>
+                  </td>
+                  <td className="num">{formatIdr(p.price)}</td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+      <TablePagination
+        page={pageData.page}
+        totalPages={pageData.totalPages}
+        totalItems={pageData.total}
+        pageSize={pageData.pageSize}
+        onPageChange={pageData.setPage}
+      />
+    </>
+  )
+}
 
 export function ProductPanel({ products, onAdd, onImportProducts }: Props) {
   const [name, setName] = useState('')
@@ -196,72 +296,14 @@ export function ProductPanel({ products, onAdd, onImportProducts }: Props) {
           onChange={setTableSearch}
           placeholder="No, kode, nama, atau nominal…"
         />
-        <div className="table-wrap">
-          <table className="data-table data-table--product-list">
-          <caption className="sr-only">
-            Daftar barang; kolom No adalah nomor urut tersimpan.
-          </caption>
-          <thead>
-            <tr>
-              <SortableTh
-                label="No"
-                sortKey="no"
-                sort={sort}
-                onSort={() => toggle('no')}
-                alignEnd
-              />
-              <SortableTh
-                label="Kode / nama"
-                sortKey="id"
-                sort={sort}
-                onSort={() => toggle('id')}
-              />
-              <SortableTh
-                label="Harga"
-                sortKey="price"
-                sort={sort}
-                onSort={() => toggle('price')}
-                alignEnd
-              />
-            </tr>
-          </thead>
-          <tbody>
-            {products.length === 0 ? (
-              <tr>
-                <td colSpan={3}>
-                  <EmptyHint
-                    title="Belum ada barang"
-                    hint="Gunakan formulir di atas untuk menambah item pertama."
-                  />
-                </td>
-              </tr>
-            ) : filteredProducts.length === 0 ? (
-              <tr>
-                <td colSpan={3}>
-                  <EmptyHint
-                    title="Tidak ada baris yang cocok"
-                    hint="Sesuaikan kata kunci atau kosongkan kolom Cari."
-                  />
-                </td>
-              </tr>
-            ) : (
-              sorted.map((p) => (
-                <tr key={p.id}>
-                  <td className="num">{p.serialNo}</td>
-                  <td className="product-cell product-cell--inline">
-                    <span className="product-cell__code">{p.id}</span>
-                    <span className="product-cell__sep" aria-hidden="true">
-                      ·
-                    </span>
-                    <span className="product-cell__name">{p.name}</span>
-                  </td>
-                  <td className="num">{formatIdr(p.price)}</td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-        </div>
+        <ProductTableSection
+          key={tableSearch}
+          products={products}
+          filteredProducts={filteredProducts}
+          sorted={sorted}
+          sort={sort}
+          toggle={toggle}
+        />
       </div>
     </section>
   )
