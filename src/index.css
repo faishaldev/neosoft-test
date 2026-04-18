@@ -1,22 +1,58 @@
+/**
+ * Design tokens aligned with neosoft.id (Elementor kit: Plus Jakarta Sans,
+ * purple brand + orange accent — see https://neosoft.id/ )
+ */
 :root {
-  --text: #3f3d48;
-  --text-h: #12101a;
-  --text-muted: #6b6578;
-  --bg: #f6f5f8;
-  --surface: #fff;
-  --surface-hover: #f0eef3;
-  --border: #dcd8e2;
-  --accent: #5b4bbd;
-  --accent-border: #a59fe0;
-  --accent-soft: rgba(91, 75, 189, 0.12);
-  --table-head: #edeaf5;
-  --input-bg: #fff;
-  --invoice-bg: #faf9fc;
-  --warn-bg: #fff8e6;
-  --warn-border: #e8c96a;
-  --mono: ui-monospace, 'Cascadia Code', Consolas, monospace;
-  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
-  line-height: 1.45;
+  --font-sans:
+    'Plus Jakarta Sans', system-ui, 'Segoe UI', Roboto, sans-serif;
+
+  /* Brand */
+  --brand: #7152a2;
+  --brand-deep: #4e2e89;
+  --brand-soft: rgba(113, 82, 162, 0.1);
+  --brand-border: #9b7fc4;
+
+  /* CTA / accent (marketing “Switch” orange) */
+  --accent: #ef8733;
+  --accent-press: #ed6a2d;
+  --accent-soft: rgba(239, 135, 51, 0.12);
+  --accent-glow: rgba(239, 135, 51, 0.35);
+
+  /* Surface & text (kit globals) */
+  --text: #454545;
+  --text-h: #4e2e89;
+  --text-muted: #757575;
+  --bg: #f5f5f5;
+  --surface: #ffffff;
+  --surface-muted: #fcfcfc;
+  --surface-hover: #f3f1f8;
+  --border: #e4dfed;
+  --table-head: #eee9f6;
+  --input-bg: #ffffff;
+  --invoice-bg: #fcfcfc;
+
+  --warn-bg: #fff6ed;
+  --warn-border: #ef8733;
+
+  --focus-ring: rgba(113, 82, 162, 0.35);
+
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-lg: 16px;
+
+  --shadow-sm:
+    0 1px 2px rgba(78, 46, 137, 0.06),
+    0 2px 8px rgba(78, 46, 137, 0.04);
+  --shadow-md:
+    0 4px 14px rgba(78, 46, 137, 0.08),
+    0 2px 4px rgba(78, 46, 137, 0.04);
+
+  --mono:
+    ui-monospace, 'Cascadia Code', Consolas, monospace;
+
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.5;
   color: var(--text);
   background: var(--bg);
   font-synthesis: none;
@@ -26,21 +62,32 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --text: #c4bfd4;
-    --text-h: #f4f2fb;
-    --text-muted: #908a9e;
-    --bg: #121018;
-    --surface: #1c1a24;
-    --surface-hover: #252330;
-    --border: #353248;
-    --accent: #9d8bf2;
-    --accent-border: #6b5cb8;
-    --accent-soft: rgba(157, 139, 242, 0.15);
-    --table-head: #252232;
-    --input-bg: #1c1a24;
-    --invoice-bg: #18161f;
-    --warn-bg: #2c2618;
-    --warn-border: #8a7529;
+    --brand: #b89fe0;
+    --brand-deep: #dcd0f5;
+    --brand-border: #8a6cbd;
+
+    --text: #e8e4ef;
+    --text-h: #dcd0f5;
+    --text-muted: #a69bb8;
+    --bg: #16121f;
+    --surface: #1f1a2c;
+    --surface-muted: #1c1826;
+    --surface-hover: #2a2438;
+    --border: #352d48;
+    --table-head: #2a243c;
+    --input-bg: #1f1a2c;
+    --invoice-bg: #1c1826;
+    --brand-soft: rgba(196, 178, 232, 0.12);
+    --accent-soft: rgba(239, 135, 51, 0.18);
+    --warn-bg: #2d2318;
+    --warn-border: #c9762e;
+    --focus-ring: rgba(196, 178, 232, 0.45);
+    --shadow-sm:
+      0 1px 2px rgba(0, 0, 0, 0.35),
+      0 2px 8px rgba(0, 0, 0, 0.2);
+    --shadow-md:
+      0 4px 20px rgba(0, 0, 0, 0.35),
+      0 2px 6px rgba(0, 0, 0, 0.25);
   }
 }
 
@@ -55,4 +102,9 @@
 
 body {
   margin: 0;
+}
+
+*:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
 }
