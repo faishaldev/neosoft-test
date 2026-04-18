@@ -262,13 +262,6 @@
   margin-inline: auto;
 }
 
-.product-name {
-  display: block;
-  margin-top: 0.25rem;
-  font-weight: 600;
-  color: var(--text);
-}
-
 .form-row {
   display: flex;
   flex-wrap: wrap;
@@ -399,6 +392,114 @@
 .btn--ghost {
   padding: 0.35rem 0.55rem;
   font-size: 0.9rem;
+}
+
+.table-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.table-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 0.5rem;
+}
+
+.table-toolbar__search {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 0.45rem 0.65rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface-muted);
+}
+
+.table-toolbar__label {
+  flex-shrink: 0;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+}
+
+.table-toolbar__search input[type='search'] {
+  flex: 1 1 12rem;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  font: inherit;
+  font-weight: 500;
+  padding: 0.45rem 0.6rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--input-bg);
+  color: var(--text);
+  box-sizing: border-box;
+}
+
+.table-toolbar__search input[type='search']:focus {
+  outline: none;
+  border-color: var(--brand);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--brand) 35%, transparent);
+}
+
+/** Kolom No + Harga tetap; kode/nama mengisi ruang di antaranya (kurangi “lubang” kosong). */
+.data-table--product-list {
+  table-layout: fixed;
+}
+
+.data-table--product-list th:nth-child(1),
+.data-table--product-list td:nth-child(1) {
+  width: 4.25rem;
+}
+
+.data-table--product-list th:nth-child(3),
+.data-table--product-list td:nth-child(3) {
+  width: 8.25rem;
+}
+
+.product-cell--inline {
+  min-width: 0;
+}
+
+.product-cell__code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  color: var(--text-muted);
+}
+
+.product-cell__sep {
+  margin: 0 0.2rem;
+  color: var(--text-muted);
+  opacity: 0.85;
+}
+
+.product-cell__name {
+  font-weight: 600;
+  color: var(--text);
+  word-break: break-word;
+}
+
+@media (max-width: 480px) {
+  .product-cell--inline {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.15rem;
+  }
+
+  .product-cell__sep {
+    display: none;
+  }
 }
 
 .table-wrap {
@@ -685,7 +786,7 @@
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--text-h);
+    color: var(--text-h);
 }
 
 .invoice__total-val {

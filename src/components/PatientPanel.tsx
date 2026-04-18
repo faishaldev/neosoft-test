@@ -8,8 +8,10 @@ import {
   validatePhoneId,
 } from '../utils/validation'
 import { EmptyHint } from './EmptyHint'
+import { TableSearchBar } from './TableSearchBar'
 import { Toast } from './Toast'
 import { SortableTh } from './SortableTh'
+import { rowMatchesSearch } from '../utils/tableSearch'
 
 type SortKey = 'no' | 'id' | 'name' | 'phone'
 
@@ -24,12 +26,29 @@ export function PatientPanel({ patients, onAdd }: Props) {
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [errors, setErrors] = useState<FieldErrors>({})
+  const [tableSearch, setTableSearch] = useState('')
   const { message, variant, flash, clear } = useFlash()
   const { sort, toggle } = useTableSort<SortKey>()
 
+  const filteredPatients = useMemo(() => {
+    if (!tableSearch.trim()) return patients
+    return patients.filter((p) =>
+      rowMatchesSearch(
+        [
+          String(p.serialNo),
+          p.id,
+          p.name,
+          p.phone ?? '',
+          p.phone ? p.phone.replace(/\D/g, '') : '',
+        ],
+        tableSearch,
+      ),
+    )
+  }, [patients, tableSearch])
+
   const sorted = useMemo(() => {
-    if (!sort) return patients
-    const m = [...patients]
+    if (!sort) return filteredPatients
+    const m = [...filteredPatients]
     m.sort((a, b) => {
       let c = 0
       if (sort.key === 'no') c = a.serialNo - b.serialNo
@@ -45,7 +64,7 @@ export function PatientPanel({ patients, onAdd }: Props) {
       return sort.dir === 'asc' ? c : -c
     })
     return m
-  }, [patients, sort])
+  }, [filteredPatients, sort])
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -134,8 +153,15 @@ export function PatientPanel({ patients, onAdd }: Props) {
         </div>
       </form>
 
-      <div className="table-wrap">
-        <table className="data-table">
+      <div className="table-block">
+        <TableSearchBar
+          id="patient-table-search"
+          value={tableSearch}
+          onChange={setTableSearch}
+          placeholder="No, ID, nama, atau telepon…"
+        />
+        <div className="table-wrap">
+          <table className="data-table">
           <caption className="sr-only">
             Data pasien; kolom No adalah nomor urut tersimpan.
           </caption>
@@ -178,6 +204,15 @@ export function PatientPanel({ patients, onAdd }: Props) {
                   />
                 </td>
               </tr>
+            ) : filteredPatients.length === 0 ? (
+              <tr>
+                <td colSpan={4}>
+                  <EmptyHint
+                    title="Tidak ada baris yang cocok"
+                    hint="Sesuaikan kata kunci atau kosongkan kolom Cari."
+                  />
+                </td>
+              </tr>
             ) : (
               sorted.map((p) => (
                 <tr key={p.id}>
@@ -190,6 +225,7 @@ export function PatientPanel({ patients, onAdd }: Props) {
             )}
           </tbody>
         </table>
+        </div>
       </div>
     </section>
   )

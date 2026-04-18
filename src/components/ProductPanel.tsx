@@ -9,8 +9,10 @@ import {
   validateProductName,
 } from '../utils/validation'
 import { EmptyHint } from './EmptyHint'
+import { TableSearchBar } from './TableSearchBar'
 import { Toast } from './Toast'
 import { SortableTh } from './SortableTh'
+import { rowMatchesSearch } from '../utils/tableSearch'
 
 type SortKey = 'no' | 'id' | 'price'
 
@@ -25,12 +27,29 @@ export function ProductPanel({ products, onAdd }: Props) {
   const [name, setName] = useState('')
   const [price, setPrice] = useState('')
   const [errors, setErrors] = useState<FieldErrors>({})
+  const [tableSearch, setTableSearch] = useState('')
   const { message, variant, flash, clear } = useFlash()
   const { sort, toggle } = useTableSort<SortKey>()
 
+  const filteredProducts = useMemo(() => {
+    if (!tableSearch.trim()) return products
+    return products.filter((p) =>
+      rowMatchesSearch(
+        [
+          String(p.serialNo),
+          p.id,
+          p.name,
+          String(p.price),
+          formatIdr(p.price),
+        ],
+        tableSearch,
+      ),
+    )
+  }, [products, tableSearch])
+
   const sorted = useMemo(() => {
-    if (!sort) return products
-    const m = [...products]
+    if (!sort) return filteredProducts
+    const m = [...filteredProducts]
     m.sort((a, b) => {
       let c = 0
       if (sort.key === 'no') c = a.serialNo - b.serialNo
@@ -42,7 +61,7 @@ export function ProductPanel({ products, onAdd }: Props) {
       return sort.dir === 'asc' ? c : -c
     })
     return m
-  }, [products, sort])
+  }, [filteredProducts, sort])
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -133,8 +152,15 @@ export function ProductPanel({ products, onAdd }: Props) {
         </div>
       </form>
 
-      <div className="table-wrap">
-        <table className="data-table">
+      <div className="table-block">
+        <TableSearchBar
+          id="product-table-search"
+          value={tableSearch}
+          onChange={setTableSearch}
+          placeholder="No, kode, nama, atau nominal…"
+        />
+        <div className="table-wrap">
+          <table className="data-table data-table--product-list">
           <caption className="sr-only">
             Daftar barang; kolom No adalah nomor urut tersimpan.
           </caption>
@@ -172,13 +198,25 @@ export function ProductPanel({ products, onAdd }: Props) {
                   />
                 </td>
               </tr>
+            ) : filteredProducts.length === 0 ? (
+              <tr>
+                <td colSpan={3}>
+                  <EmptyHint
+                    title="Tidak ada baris yang cocok"
+                    hint="Sesuaikan kata kunci atau kosongkan kolom Cari."
+                  />
+                </td>
+              </tr>
             ) : (
               sorted.map((p) => (
                 <tr key={p.id}>
                   <td className="num">{p.serialNo}</td>
-                  <td>
-                    <span className="mono">{p.id}</span>
-                    <span className="product-name">{p.name}</span>
+                  <td className="product-cell product-cell--inline">
+                    <span className="product-cell__code">{p.id}</span>
+                    <span className="product-cell__sep" aria-hidden="true">
+                      ·
+                    </span>
+                    <span className="product-cell__name">{p.name}</span>
                   </td>
                   <td className="num">{formatIdr(p.price)}</td>
                 </tr>
@@ -186,6 +224,7 @@ export function ProductPanel({ products, onAdd }: Props) {
             )}
           </tbody>
         </table>
+        </div>
       </div>
     </section>
   )

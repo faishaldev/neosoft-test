@@ -1,21 +1,43 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { txLineTotal } from '../lib/salesMetrics'
 import type { Transaction } from '../lib/types'
 import { useTableSort } from '../hooks/useTableSort'
 import { formatDateId, formatIdr } from '../utils/format'
+import { rowMatchesSearch } from '../utils/tableSearch'
 import { EmptyHint } from './EmptyHint'
 import { SortableTh } from './SortableTh'
+import { TableSearchBar } from './TableSearchBar'
 
 type SortKey = 'invoiceNo' | 'dateISO' | 'patientId' | 'patientName' | 'total'
 
 type Props = { transactions: Transaction[] }
 
 export function ReportTransactionsTable({ transactions }: Props) {
+  const [tableSearch, setTableSearch] = useState('')
   const { sort, toggle } = useTableSort<SortKey>()
 
+  const filteredTx = useMemo(() => {
+    if (!tableSearch.trim()) return transactions
+    return transactions.filter((t) => {
+      const total = txLineTotal(t)
+      return rowMatchesSearch(
+        [
+          t.invoiceNo,
+          t.dateISO,
+          formatDateId(t.dateISO),
+          t.patientId,
+          t.patientName,
+          String(total),
+          formatIdr(total),
+        ],
+        tableSearch,
+      )
+    })
+  }, [transactions, tableSearch])
+
   const sorted = useMemo(() => {
-    if (!sort) return transactions
-    const m = [...transactions]
+    if (!sort) return filteredTx
+    const m = [...filteredTx]
     m.sort((a, b) => {
       let c = 0
       if (sort.key === 'invoiceNo') {
@@ -32,13 +54,20 @@ export function ReportTransactionsTable({ transactions }: Props) {
       return sort.dir === 'asc' ? c : -c
     })
     return m
-  }, [transactions, sort])
+  }, [filteredTx, sort])
 
   return (
     <>
       <h3 className="subhead">Detail per transaksi</h3>
-      <div className="table-wrap">
-        <table className="data-table">
+      <div className="table-block">
+        <TableSearchBar
+          id="report-transactions-search"
+          value={tableSearch}
+          onChange={setTableSearch}
+          placeholder="Invoice, tanggal, pasien, atau total…"
+        />
+        <div className="table-wrap">
+          <table className="data-table">
           <caption className="sr-only">
             Riwayat invoice; urutkan kolom lewat tombol header.
           </caption>
@@ -87,6 +116,15 @@ export function ReportTransactionsTable({ transactions }: Props) {
                   />
                 </td>
               </tr>
+            ) : filteredTx.length === 0 ? (
+              <tr>
+                <td colSpan={5}>
+                  <EmptyHint
+                    title="Tidak ada baris yang cocok"
+                    hint="Sesuaikan kata kunci atau kosongkan kolom Cari."
+                  />
+                </td>
+              </tr>
             ) : (
               sorted.map((t) => (
                 <tr key={t.invoiceNo}>
@@ -100,6 +138,7 @@ export function ReportTransactionsTable({ transactions }: Props) {
             )}
           </tbody>
         </table>
+        </div>
       </div>
     </>
   )

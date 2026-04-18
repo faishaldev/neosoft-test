@@ -1,20 +1,39 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import type { ProductSaleAgg } from '../lib/salesMetrics'
 import { useTableSort } from '../hooks/useTableSort'
 import { formatIdr } from '../utils/format'
+import { rowMatchesSearch } from '../utils/tableSearch'
 import { EmptyHint } from './EmptyHint'
 import { SortableTh } from './SortableTh'
+import { TableSearchBar } from './TableSearchBar'
 
 type SortKey = 'id' | 'name' | 'qty' | 'revenue'
 
 type Props = { rows: ProductSaleAgg[] }
 
 export function ReportProductsTable({ rows }: Props) {
+  const [tableSearch, setTableSearch] = useState('')
   const { sort, toggle } = useTableSort<SortKey>()
 
+  const filteredRows = useMemo(() => {
+    if (!tableSearch.trim()) return rows
+    return rows.filter((r) =>
+      rowMatchesSearch(
+        [
+          r.id,
+          r.name,
+          String(r.qty),
+          String(r.revenue),
+          formatIdr(r.revenue),
+        ],
+        tableSearch,
+      ),
+    )
+  }, [rows, tableSearch])
+
   const sorted = useMemo(() => {
-    if (!sort) return rows
-    const m = [...rows]
+    if (!sort) return filteredRows
+    const m = [...filteredRows]
     m.sort((a, b) => {
       let c = 0
       if (sort.key === 'id') {
@@ -29,13 +48,20 @@ export function ReportProductsTable({ rows }: Props) {
       return sort.dir === 'asc' ? c : -c
     })
     return m
-  }, [rows, sort])
+  }, [filteredRows, sort])
 
   return (
     <>
       <h3 className="subhead">Agregasi per barang</h3>
-      <div className="table-wrap">
-        <table className="data-table">
+      <div className="table-block">
+        <TableSearchBar
+          id="report-products-search"
+          value={tableSearch}
+          onChange={setTableSearch}
+          placeholder="Kode, nama, qty, atau subtotal…"
+        />
+        <div className="table-wrap">
+          <table className="data-table">
           <caption className="sr-only">
             Ringkasan penjualan per barang; header kolom dapat diurutkan.
           </caption>
@@ -79,6 +105,15 @@ export function ReportProductsTable({ rows }: Props) {
                   />
                 </td>
               </tr>
+            ) : filteredRows.length === 0 ? (
+              <tr>
+                <td colSpan={4}>
+                  <EmptyHint
+                    title="Tidak ada baris yang cocok"
+                    hint="Sesuaikan kata kunci atau kosongkan kolom Cari."
+                  />
+                </td>
+              </tr>
             ) : (
               sorted.map((r) => (
                 <tr key={r.id}>
@@ -91,6 +126,7 @@ export function ReportProductsTable({ rows }: Props) {
             )}
           </tbody>
         </table>
+        </div>
       </div>
     </>
   )
