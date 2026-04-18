@@ -1,10 +1,10 @@
-import { useState } from 'react'
 import { useAppData } from './hooks/useAppData'
+import { useSyncedTab } from './hooks/useSyncedTab'
 import { ProductPanel } from './components/ProductPanel'
 import { PatientPanel } from './components/PatientPanel'
 import { TransactionPanel } from './components/TransactionPanel'
 import { ReportPanel } from './components/ReportPanel'
-import { TAB_ITEMS, type Tab } from './lib/tabs'
+import { TAB_ITEMS } from './lib/tabs'
 import './App.css'
 
 export default function App() {
@@ -15,7 +15,7 @@ export default function App() {
     salesByProduct,
     grandTotal,
   } = useAppData()
-  const [tab, setTab] = useState<Tab>('barang')
+  const [tab, setTab] = useSyncedTab()
 
   return (
     <div className="app">
