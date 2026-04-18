@@ -328,6 +328,64 @@
   letter-spacing: 0.06em;
   color: var(--brand-deep);
   background: var(--table-head);
+  vertical-align: bottom;
+}
+
+.th-sort {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.35rem;
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.35rem 0.25rem;
+  margin: -0.35rem -0.25rem;
+  font: inherit;
+  font-weight: 700;
+  font-size: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: inherit;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  text-align: inherit;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
+}
+
+.th-sort:hover {
+  background: color-mix(in srgb, var(--brand) 12%, transparent);
+}
+
+.th-sort:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+.th-sort--active {
+  color: var(--brand-deep);
+}
+
+.th-sort__label {
+  flex: 1;
+  text-align: inherit;
+}
+
+.data-table th.num .th-sort {
+  justify-content: flex-end;
+}
+
+.th-sort__arrows {
+  flex-shrink: 0;
+  opacity: 0.65;
+  font-size: 0.85em;
+}
+
+.th-sort--active .th-sort__arrows {
+  opacity: 1;
 }
 
 .data-table tbody tr {
@@ -459,6 +517,15 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--brand-deep);
+  vertical-align: bottom;
+}
+
+.invoice__table .th-sort {
+  min-height: 2.25rem;
+}
+
+.invoice__table th.num .th-sort {
+  justify-content: flex-end;
 }
 
 .invoice__table tfoot td {

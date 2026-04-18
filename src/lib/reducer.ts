@@ -1,4 +1,5 @@
 import { nextCode } from './codes'
+import { nextSerialNo } from './serialNo'
 import type {
   AppData,
   Patient,
@@ -22,6 +23,7 @@ export function appReducer(state: AppData, action: Action): AppData {
       const { code, sequences } = nextCode('product', state.sequences)
       const product: Product = {
         id: code,
+        serialNo: nextSerialNo(state.products),
         name: action.name.trim(),
         price: action.price,
       }
@@ -35,6 +37,7 @@ export function appReducer(state: AppData, action: Action): AppData {
       const { code, sequences } = nextCode('patient', state.sequences)
       const patient: Patient = {
         id: code,
+        serialNo: nextSerialNo(state.patients),
         name: action.name.trim(),
         phone: action.phone.trim(),
       }

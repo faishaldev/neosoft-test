@@ -1,11 +1,14 @@
 export interface Product {
   id: string
+  /** Nomor urut tetap (disimpan; tidak berubah saat sort tabel). */
+  serialNo: number
   name: string
   price: number
 }
 
 export interface Patient {
   id: string
+  serialNo: number
   name: string
   phone: string
 }

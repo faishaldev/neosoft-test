@@ -1,6 +1,11 @@
+import { useMemo } from 'react'
 import type { InvoicePreviewRow } from '../lib/draftTx'
 import type { Patient } from '../lib/types'
+import { useTableSort } from '../hooks/useTableSort'
 import { formatDateId, formatIdr } from '../utils/format'
+import { SortableTh } from './SortableTh'
+
+type SortKey = 'name' | 'price' | 'qty' | 'sub'
 
 type Props = {
   patient: Patient | undefined
@@ -14,6 +19,26 @@ export function InvoicePreview({
   previewTotal,
 }: Props) {
   const today = formatDateId(new Date().toISOString())
+  const { sort, toggle } = useTableSort<SortKey>()
+
+  const sortedRows = useMemo(() => {
+    if (!sort) return rows
+    const m = [...rows]
+    m.sort((a, b) => {
+      let c = 0
+      if (sort.key === 'name') {
+        c = a.name.localeCompare(b.name, 'id-ID')
+      } else if (sort.key === 'price') {
+        c = a.price - b.price
+      } else if (sort.key === 'qty') {
+        c = a.qty - b.qty
+      } else {
+        c = a.sub - b.sub
+      }
+      return sort.dir === 'asc' ? c : -c
+    })
+    return m
+  }, [rows, sort])
 
   return (
     <div className="invoice">
@@ -41,12 +66,38 @@ export function InvoicePreview({
       </div>
 
       <table className="invoice__table">
+        <caption className="sr-only">
+          Baris invoice; kolom dapat diurutkan dari header.
+        </caption>
         <thead>
           <tr>
-            <th>Item yang dibeli</th>
-            <th className="num">harga</th>
-            <th className="num">Jumlah</th>
-            <th className="num">SUBTOTAL</th>
+            <SortableTh
+              label="Item yang dibeli"
+              sortKey="name"
+              sort={sort}
+              onSort={() => toggle('name')}
+            />
+            <SortableTh
+              label="harga"
+              sortKey="price"
+              sort={sort}
+              onSort={() => toggle('price')}
+              alignEnd
+            />
+            <SortableTh
+              label="Jumlah"
+              sortKey="qty"
+              sort={sort}
+              onSort={() => toggle('qty')}
+              alignEnd
+            />
+            <SortableTh
+              label="SUBTOTAL"
+              sortKey="sub"
+              sort={sort}
+              onSort={() => toggle('sub')}
+              alignEnd
+            />
           </tr>
         </thead>
         <tbody>
@@ -57,8 +108,8 @@ export function InvoicePreview({
               </td>
             </tr>
           ) : (
-            rows.map((r, i) => (
-              <tr key={i}>
+            sortedRows.map((r, i) => (
+              <tr key={`${r.name}-${r.price}-${r.qty}-${i}`}>
                 <td>{r.name}</td>
                 <td className="num">{formatIdr(r.price)}</td>
                 <td className="num">{r.qty}</td>

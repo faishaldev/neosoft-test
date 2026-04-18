@@ -1,10 +1,14 @@
-import { useState, type FormEvent } from 'react'
+import { useMemo, useState, type FormEvent } from 'react'
 import type { Product } from '../lib/types'
 import { useFlash } from '../hooks/useFlash'
+import { useTableSort } from '../hooks/useTableSort'
 import { formatIdr } from '../utils/format'
 import { parsePriceInput } from '../utils/parseCurrency'
 import { EmptyHint } from './EmptyHint'
 import { FlashBanner } from './FlashBanner'
+import { SortableTh } from './SortableTh'
+
+type SortKey = 'no' | 'id' | 'price'
 
 type Props = {
   products: Product[]
@@ -15,6 +19,23 @@ export function ProductPanel({ products, onAdd }: Props) {
   const [name, setName] = useState('')
   const [price, setPrice] = useState('')
   const { message, flash } = useFlash()
+  const { sort, toggle } = useTableSort<SortKey>()
+
+  const sorted = useMemo(() => {
+    if (!sort) return products
+    const m = [...products]
+    m.sort((a, b) => {
+      let c = 0
+      if (sort.key === 'no') c = a.serialNo - b.serialNo
+      else if (sort.key === 'id') {
+        c = a.id.localeCompare(b.id, 'id-ID')
+      } else {
+        c = a.price - b.price
+      }
+      return sort.dir === 'asc' ? c : -c
+    })
+    return m
+  }, [products, sort])
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -32,7 +53,7 @@ export function ProductPanel({ products, onAdd }: Props) {
 
       <h2 id="h-barang">Daftar harga barang</h2>
       <p className="panel__hint">
-        Kode otomatis <strong>P-YYMM####</strong> (mis. P-26040001).
+        Nomor urut (<strong>No</strong>) disimpan tetap untuk setiap barang.
       </p>
 
       <form className="form-card" onSubmit={handleSubmit}>
@@ -66,13 +87,31 @@ export function ProductPanel({ products, onAdd }: Props) {
 
       <div className="table-wrap">
         <table className="data-table">
+          <caption className="sr-only">
+            Daftar barang; kolom No adalah nomor urut tersimpan.
+          </caption>
           <thead>
             <tr>
-              <th scope="col">No</th>
-              <th scope="col">Kode / nama</th>
-              <th scope="col" className="num">
-                Harga
-              </th>
+              <SortableTh
+                label="No"
+                sortKey="no"
+                sort={sort}
+                onSort={() => toggle('no')}
+                alignEnd
+              />
+              <SortableTh
+                label="Kode / nama"
+                sortKey="id"
+                sort={sort}
+                onSort={() => toggle('id')}
+              />
+              <SortableTh
+                label="Harga"
+                sortKey="price"
+                sort={sort}
+                onSort={() => toggle('price')}
+                alignEnd
+              />
             </tr>
           </thead>
           <tbody>
@@ -86,9 +125,9 @@ export function ProductPanel({ products, onAdd }: Props) {
                 </td>
               </tr>
             ) : (
-              products.map((p, i) => (
+              sorted.map((p) => (
                 <tr key={p.id}>
-                  <td>{i + 1}</td>
+                  <td className="num">{p.serialNo}</td>
                   <td>
                     <span className="mono">{p.id}</span>
                     <span className="product-name">{p.name}</span>
