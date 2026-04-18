@@ -102,6 +102,10 @@ export default function App() {
           </div>
         )}
       </main>
+
+      <footer className="app__footer no-print">
+        <p className="app__footer-text">PT Neosoft Teknologi Asia</p>
+      </footer>
     </div>
   )
 }

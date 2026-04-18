@@ -32,7 +32,7 @@ export function AppHeader({ tab, onTabChange }: Props) {
 
   return (
     <header className="app__header">
-      <h1 className="app__title">Penjualan &amp; Pasien</h1>
+      <h1 className="app__title">POS Klinik Kecantikan Faishal</h1>
       <p className="app__subtitle">
         Kelola barang, pasien, invoice, dan laporan dalam satu tempat.
       </p>
