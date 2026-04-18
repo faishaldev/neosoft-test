@@ -60,10 +60,16 @@ export function ProductTableSection({
                 alignEnd
               />
               <SortableTh
-                label="Kode / nama"
+                label="Kode"
                 sortKey="id"
                 sort={sort}
                 onSort={() => toggle('id')}
+              />
+              <SortableTh
+                label="Nama"
+                sortKey="name"
+                sort={sort}
+                onSort={() => toggle('name')}
               />
               <SortableTh
                 label="Harga"
@@ -80,7 +86,7 @@ export function ProductTableSection({
           <tbody>
             {products.length === 0 ? (
               <tr>
-                <td colSpan={4}>
+                <td colSpan={5}>
                   <EmptyHint
                     title="Belum ada barang"
                     hint="Gunakan formulir di atas untuk menambah item pertama."
@@ -89,7 +95,7 @@ export function ProductTableSection({
               </tr>
             ) : filteredProducts.length === 0 ? (
               <tr>
-                <td colSpan={4}>
+                <td colSpan={5}>
                   <EmptyHint
                     title="Tidak ada baris yang cocok"
                     hint="Sesuaikan kata kunci atau kosongkan kolom Cari."

@@ -33,32 +33,28 @@ export function ProductTableRow({
   return (
     <tr className={rowStatusClass(p.archived, editing)}>
       <td className="num">{p.serialNo}</td>
-      <td className="product-cell">
+      <td className="mono product-cell__code">{p.id}</td>
+      <td>
         {editing ? (
-          <div className="product-cell--edit-row">
-            <span className="product-cell__code-chip mono">{p.id}</span>
+          <>
             <label className="sr-only" htmlFor={`edit-name-${p.id}`}>
               Nama barang
             </label>
             <input
               id={`edit-name-${p.id}`}
-              className="table-edit-input table-edit-input--flex"
+              className="table-edit-input"
               autoComplete="off"
               value={editName}
               onChange={(ev) => onChangeEditName(ev.target.value)}
             />
-          </div>
+          </>
         ) : (
-          <div className="product-cell product-cell--inline">
-            <span className="product-cell__code">{p.id}</span>
-            <span className="product-cell__sep" aria-hidden="true">
-              ·
-            </span>
-            <span className="product-cell__name">{p.name}</span>
+          <span className="product-cell__name">
+            {p.name}
             {p.archived ? (
               <span className="badge badge--muted">Arsip</span>
             ) : null}
-          </div>
+          </span>
         )}
       </td>
       <td className="num table-cell--money">

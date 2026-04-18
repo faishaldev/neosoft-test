@@ -15,6 +15,7 @@ export function sortProducts(
     let c = 0
     if (sort.key === 'no') c = a.serialNo - b.serialNo
     else if (sort.key === 'id') c = a.id.localeCompare(b.id, 'id-ID')
+    else if (sort.key === 'name') c = a.name.localeCompare(b.name, 'id-ID')
     else c = a.price - b.price
     return sort.dir === 'asc' ? c : -c
   })
