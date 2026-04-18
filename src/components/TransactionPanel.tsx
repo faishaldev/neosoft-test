@@ -90,7 +90,7 @@ export function TransactionPanel({
       </p>
 
       {missingMaster ? (
-        <div className="panel__warn panel__warn--rich no-print">
+        <div className="panel__warn panel__warn--tx no-print">
           <strong>Langkah berikutnya:</strong> tambah minimal satu barang (
           tab Daftar barang) dan satu pasien (tab Data pasien).
         </div>

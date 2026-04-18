@@ -1,7 +1,6 @@
 import type { ProductSaleAgg } from '../lib/salesMetrics'
 import type { Transaction } from '../lib/types'
 import {
-  downloadAggregationCsv,
   downloadReportJson,
   downloadTransactionsCsv,
 } from '../lib/importExport/reportIo'
@@ -38,14 +37,7 @@ export function ReportToolbar({
             className="btn"
             onClick={() => downloadTransactionsCsv(transactions)}
           >
-            CSV transaksi
-          </button>
-          <button
-            type="button"
-            className="btn"
-            onClick={() => downloadAggregationCsv(salesByProduct)}
-          >
-            CSV agregasi
+            Ekspor CSV
           </button>
         </div>
         <button
@@ -57,8 +49,8 @@ export function ReportToolbar({
         </button>
       </div>
       <p className="panel-io__hint">
-        JSON berisi ringkasan, daftar transaksi, dan agregasi per barang. CSV
-        transaksi satu baris per invoice; CSV agregasi sesuai tabel agregasi.
+        JSON berisi ringkasan dan daftar transaksi. CSV transaksi satu
+        baris per invoice.
       </p>
     </div>
   )

@@ -1,7 +1,6 @@
 import type { ProductSaleAgg } from '../lib/salesMetrics'
 import type { Transaction } from '../lib/types'
 import { formatIdr } from '../utils/format'
-import { ReportProductsTable } from './ReportProductsTable'
 import { ReportToolbar } from './ReportToolbar'
 import { ReportTransactionsTable } from './ReportTransactionsTable'
 
@@ -16,6 +15,14 @@ export function ReportPanel({
   salesByProduct,
   grandTotal,
 }: Props) {
+  const totalQtySold = transactions.reduce(
+    (sum, t) =>
+      sum + t.lines.reduce((lineSum, line) => lineSum + line.qty, 0),
+    0,
+  )
+  const avgPerTransaction =
+    transactions.length > 0 ? grandTotal / transactions.length : 0
+
   return (
     <section className="panel" aria-labelledby="h-report">
       <h2 id="h-report">Laporan penjualan</h2>
@@ -30,7 +37,7 @@ export function ReportPanel({
       />
 
       <div
-        className="stat-grid"
+        className="stat-grid no-print"
         role="group"
         aria-label="Ringkasan laporan"
       >
@@ -70,10 +77,47 @@ export function ReportPanel({
             <span className="stat__value">{formatIdr(grandTotal)}</span>
           </div>
         </article>
+        <article className="stat stat--items">
+          <div className="stat__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M3.75 6.75h16.5m-15 0l1.5 10.5a2.25 2.25 0 002.228 1.93h6.044a2.25 2.25 0 002.228-1.93l1.5-10.5m-11.25 0V5.625A2.625 2.625 0 0110.125 3h3.75A2.625 2.625 0 0116.5 5.625V6.75"
+              />
+            </svg>
+          </div>
+          <div className="stat__body">
+            <span className="stat__label">Total item terjual</span>
+            <span className="stat__value stat__value--num">
+              {totalQtySold}
+            </span>
+          </div>
+        </article>
+        <article className="stat stat--average">
+          <div className="stat__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M3.75 4.5h16.5M6 8.25h12m-9 3.75h6m-8.25 7.5h9a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0016.5 4.5h-9A2.25 2.25 0 005.25 6.75v10.5A2.25 2.25 0 007.5 19.5z"
+              />
+            </svg>
+          </div>
+          <div className="stat__body">
+            <span className="stat__label">Rata-rata per transaksi</span>
+            <span className="stat__value">
+              {formatIdr(avgPerTransaction)}
+            </span>
+          </div>
+        </article>
       </div>
 
       <ReportTransactionsTable transactions={transactions} />
-      <ReportProductsTable rows={salesByProduct} />
     </section>
   )
 }

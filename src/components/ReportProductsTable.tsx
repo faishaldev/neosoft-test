@@ -1,18 +1,22 @@
 import { useMemo, useState } from 'react'
 import type { ProductSaleAgg } from '../lib/salesMetrics'
 import { usePagedSlice } from '../hooks/usePagedSlice'
-import {
-  useTableSort,
-  type TableSortState,
-} from '../hooks/useTableSort'
 import { formatIdr } from '../utils/format'
 import { rowMatchesSearch } from '../utils/tableSearch'
 import { EmptyHint } from './EmptyHint'
-import { SortableTh } from './SortableTh'
-import { TableSearchBar } from './TableSearchBar'
 import { TablePagination } from './TablePagination'
 
 type SortKey = 'id' | 'name' | 'qty' | 'revenue'
+type SortDir = 'asc' | 'desc'
+type SortOption =
+  | 'id:asc'
+  | 'id:desc'
+  | 'name:asc'
+  | 'name:desc'
+  | 'qty:asc'
+  | 'qty:desc'
+  | 'revenue:asc'
+  | 'revenue:desc'
 
 type Props = { rows: ProductSaleAgg[] }
 
@@ -20,86 +24,49 @@ type ReportProductsPagedProps = {
   rows: ProductSaleAgg[]
   filteredRows: ProductSaleAgg[]
   sorted: ProductSaleAgg[]
-  sort: TableSortState<SortKey> | null
-  toggle: (key: SortKey) => void
 }
 
 function ReportProductsPaged({
   rows,
   filteredRows,
   sorted,
-  sort,
-  toggle,
 }: ReportProductsPagedProps) {
   const pageData = usePagedSlice(sorted)
+
   return (
     <>
-      <div className="table-wrap">
-        <table className="data-table">
-          <caption className="sr-only">
-            Ringkasan penjualan per barang; header kolom dapat diurutkan.
-          </caption>
-          <thead>
-            <tr>
-              <SortableTh
-                label="Kode (referensi)"
-                sortKey="id"
-                sort={sort}
-                onSort={() => toggle('id')}
-              />
-              <SortableTh
-                label="Nama barang"
-                sortKey="name"
-                sort={sort}
-                onSort={() => toggle('name')}
-              />
-              <SortableTh
-                label="Qty terjual"
-                sortKey="qty"
-                sort={sort}
-                onSort={() => toggle('qty')}
-                alignEnd
-              />
-              <SortableTh
-                label="Subtotal"
-                sortKey="revenue"
-                sort={sort}
-                onSort={() => toggle('revenue')}
-                alignEnd
-              />
-            </tr>
-          </thead>
-          <tbody>
-            {rows.length === 0 ? (
-              <tr>
-                <td colSpan={4}>
-                  <EmptyHint
-                    title="Belum ada agregasi"
-                    hint="Data terisi setelah ada transaksi dengan barang."
-                  />
-                </td>
-              </tr>
-            ) : filteredRows.length === 0 ? (
-              <tr>
-                <td colSpan={4}>
-                  <EmptyHint
-                    title="Tidak ada baris yang cocok"
-                    hint="Sesuaikan kata kunci atau kosongkan kolom Cari."
-                  />
-                </td>
-              </tr>
-            ) : (
-              pageData.slice.map((r) => (
-                <tr key={r.id}>
-                  <td className="mono">{r.id}</td>
-                  <td>{r.name}</td>
-                  <td className="num">{r.qty}</td>
-                  <td className="num">{formatIdr(r.revenue)}</td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+      <div className="report-cards">
+        {rows.length === 0 ? (
+          <EmptyHint
+            title="Belum ada agregasi"
+            hint="Data terisi setelah ada transaksi dengan barang."
+          />
+        ) : filteredRows.length === 0 ? (
+          <EmptyHint
+            title="Tidak ada baris yang cocok"
+            hint="Sesuaikan kata kunci atau kosongkan kolom Cari."
+          />
+        ) : (
+          pageData.slice.map((r) => (
+            <article key={r.id} className="report-card">
+              <p className="report-card__title mono">{r.id}</p>
+              <dl className="report-card__meta">
+                <div>
+                  <dt>Nama barang</dt>
+                  <dd>{r.name}</dd>
+                </div>
+                <div>
+                  <dt>Qty terjual</dt>
+                  <dd>{r.qty}</dd>
+                </div>
+                <div>
+                  <dt>Subtotal</dt>
+                  <dd>{formatIdr(r.revenue)}</dd>
+                </div>
+              </dl>
+            </article>
+          ))
+        )}
       </div>
       <TablePagination
         page={pageData.page}
@@ -114,7 +81,8 @@ function ReportProductsPaged({
 
 export function ReportProductsTable({ rows }: Props) {
   const [tableSearch, setTableSearch] = useState('')
-  const { sort, toggle } = useTableSort<SortKey>()
+  const [sortOption, setSortOption] =
+    useState<SortOption>('revenue:desc')
 
   const filteredRows = useMemo(() => {
     if (!tableSearch.trim()) return rows
@@ -133,41 +101,69 @@ export function ReportProductsTable({ rows }: Props) {
   }, [rows, tableSearch])
 
   const sorted = useMemo(() => {
-    if (!sort) return filteredRows
+    const [sortKey, sortDir] = sortOption.split(':') as [
+      SortKey,
+      SortDir,
+    ]
     const m = [...filteredRows]
     m.sort((a, b) => {
       let c = 0
-      if (sort.key === 'id') {
+      if (sortKey === 'id') {
         c = a.id.localeCompare(b.id, 'id-ID')
-      } else if (sort.key === 'name') {
+      } else if (sortKey === 'name') {
         c = a.name.localeCompare(b.name, 'id-ID')
-      } else if (sort.key === 'qty') {
+      } else if (sortKey === 'qty') {
         c = a.qty - b.qty
       } else {
         c = a.revenue - b.revenue
       }
-      return sort.dir === 'asc' ? c : -c
+      return sortDir === 'asc' ? c : -c
     })
     return m
-  }, [filteredRows, sort])
+  }, [filteredRows, sortOption])
 
   return (
     <>
       <h3 className="subhead">Agregasi per barang</h3>
       <div className="table-block">
-        <TableSearchBar
-          id="report-products-search"
-          value={tableSearch}
-          onChange={setTableSearch}
-          placeholder="Cari — Kode, nama, qty, atau subtotal…"
-        />
+        <div className="table-toolbar report-toolbar no-print">
+          <div className="table-toolbar__search">
+            <input
+              id="report-products-search"
+              type="search"
+              autoComplete="off"
+              spellCheck={false}
+              value={tableSearch}
+              onChange={(ev) => setTableSearch(ev.target.value)}
+              placeholder="Cari — Kode, nama, qty, atau subtotal…"
+              aria-label="Cari agregasi barang"
+            />
+          </div>
+          <label className="report-toolbar__sort">
+            <span className="sr-only">Urutkan agregasi barang</span>
+            <select
+              value={sortOption}
+              onChange={(ev) =>
+                setSortOption(ev.target.value as SortOption)
+              }
+              aria-label="Urutkan agregasi barang"
+            >
+              <option value="revenue:desc">Urut: Subtotal terbesar</option>
+              <option value="revenue:asc">Urut: Subtotal terkecil</option>
+              <option value="qty:desc">Urut: Qty terbesar</option>
+              <option value="qty:asc">Urut: Qty terkecil</option>
+              <option value="name:asc">Urut: Nama A-Z</option>
+              <option value="name:desc">Urut: Nama Z-A</option>
+              <option value="id:asc">Urut: Kode A-Z</option>
+              <option value="id:desc">Urut: Kode Z-A</option>
+            </select>
+          </label>
+        </div>
         <ReportProductsPaged
           key={tableSearch}
           rows={rows}
           filteredRows={filteredRows}
           sorted={sorted}
-          sort={sort}
-          toggle={toggle}
         />
       </div>
     </>
