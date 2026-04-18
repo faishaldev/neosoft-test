@@ -176,7 +176,7 @@ export function ReportTransactionsTable({ transactions }: Props) {
           id="report-transactions-search"
           value={tableSearch}
           onChange={setTableSearch}
-          placeholder="Invoice, tanggal, pasien, atau total…"
+          placeholder="Cari — Invoice, tanggal, pasien, atau total…"
         />
         <ReportTransactionsPaged
           key={tableSearch}

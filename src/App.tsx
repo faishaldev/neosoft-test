@@ -1,6 +1,7 @@
 import { useAppData } from './hooks/useAppData'
 import { useSyncedTab } from './hooks/useSyncedTab'
 import { AppHeader } from './components/AppHeader'
+import { MobileTabMenu } from './components/MobileTabMenu'
 import { ProductPanel } from './components/ProductPanel'
 import { PatientPanel } from './components/PatientPanel'
 import { TransactionPanel } from './components/TransactionPanel'
@@ -24,6 +25,8 @@ export default function App() {
       </a>
 
       <AppHeader tab={tab} onTabChange={setTab} />
+
+      <MobileTabMenu tab={tab} onTabChange={setTab} />
 
       <main id="main-content" className="app__main" tabIndex={-1}>
         {tab === 'barang' && (

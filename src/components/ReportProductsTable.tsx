@@ -159,7 +159,7 @@ export function ReportProductsTable({ rows }: Props) {
           id="report-products-search"
           value={tableSearch}
           onChange={setTableSearch}
-          placeholder="Kode, nama, qty, atau subtotal…"
+          placeholder="Cari — Kode, nama, qty, atau subtotal…"
         />
         <ReportProductsPaged
           key={tableSearch}

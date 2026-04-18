@@ -59,7 +59,7 @@ export function ProductPanel(props: ProductPanelProps) {
           id="product-table-search"
           value={m.tableSearch}
           onChange={m.setTableSearch}
-          placeholder="No, kode, nama, nominal, atau arsip…"
+          placeholder="Cari — No, kode, nama, nominal, atau arsip…"
         />
         <ProductTableSection
           key={m.tableSearch}

@@ -3,16 +3,16 @@ type Props = {
   value: string
   onChange: (value: string) => void
   placeholder?: string
-  /** Teks label visual (default: "Cari") */
+  /** Label kiri input (desktop); di layar sempit disembunyikan tetap aksesibel. */
   label?: string
 }
 
-/** Input pencarian di atas tabel data (label sejajar input, memakai lebar penuh). */
+/** Input pencarian di atas tabel data. */
 export function TableSearchBar({
   id,
   value,
   onChange,
-  placeholder = 'Ketik untuk menyaring baris…',
+  placeholder = 'Cari…',
   label = 'Cari',
 }: Props) {
   return (

@@ -35,7 +35,7 @@ function InvoicePreviewPaged({
 }: InvoicePreviewPagedProps) {
   const pageData = usePagedSlice(sortedRows)
   return (
-    <>
+    <div className="invoice__table-scroll">
       <table className="invoice__table">
         <caption className="sr-only">
           Baris invoice; kolom dapat diurutkan dari header.
@@ -107,7 +107,7 @@ function InvoicePreviewPaged({
         pageSize={pageData.pageSize}
         onPageChange={pageData.setPage}
       />
-    </>
+    </div>
   )
 }
 

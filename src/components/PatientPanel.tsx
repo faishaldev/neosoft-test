@@ -59,7 +59,7 @@ export function PatientPanel(props: PatientPanelProps) {
           id="patient-table-search"
           value={m.tableSearch}
           onChange={m.setTableSearch}
-          placeholder="No, ID, nama, telepon, atau arsip…"
+          placeholder="Cari — No, ID, nama, telepon, atau arsip…"
         />
         <PatientTableSection
           key={m.tableSearch}

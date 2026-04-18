@@ -36,8 +36,9 @@ export function AppHeader({ tab, onTabChange }: Props) {
       <p className="app__subtitle">
         Kelola barang, pasien, invoice, dan laporan dalam satu tempat.
       </p>
+
       <nav
-        className="tabs"
+        className="tabs tabs--desktop"
         aria-label="Menu utama"
         role="tablist"
         onKeyDown={onTabsKeyDown}
