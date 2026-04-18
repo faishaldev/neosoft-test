@@ -29,6 +29,11 @@ export interface AppData {
   products: Product[]
   patients: Patient[]
   transactions: Transaction[]
-  /** Counter per bulan untuk kode `P-YYMM####`, `EM-YYMM####`, `INV-YYMM####` */
+  /**
+   * Counter bulanan: `P-YYMM####`, `EM-YYMM####`, `INV-YYMM####`.
+   */
   sequences: Record<string, number>
 }
+
+/** Baris keranjang sebelum transaksi disimpan */
+export type DraftLine = { productId: string; qty: number }
