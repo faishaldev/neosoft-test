@@ -226,6 +226,10 @@ export function PatientPanel({
       <Toast message={message} onDismiss={clear} variant={variant} />
 
       <h2 id="h-pasien">Data pasien</h2>
+      <p className="panel__hint">
+        Pasien dapat dipilih saat menyimpan invoice; ID otomatis dan konsisten di
+        laporan. Data disimpan di perangkat ini.
+      </p>
 
       <MasterDataIoBar
         ariaLabel="Ekspor dan impor data pasien"

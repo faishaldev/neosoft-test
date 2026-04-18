@@ -1,5 +1,7 @@
 import type { FormEvent } from 'react'
+import { useMemo } from 'react'
 import type { DraftLine, Patient, Product } from '../lib/types'
+import { SearchableSelect } from './SearchableSelect'
 import { TxLinesGrid } from './TxLinesGrid'
 
 type Props = {
@@ -25,22 +27,28 @@ export function TransactionForm({
   onAddRow,
   onSubmit,
 }: Props) {
+  const patientItems = useMemo(
+    () =>
+      patients.map((p) => ({
+        value: p.id,
+        label: `${p.id} — ${p.name}`,
+      })),
+    [patients],
+  )
+
   return (
     <form className="tx-form" onSubmit={onSubmit} noValidate>
-      <label className="field">
+      <label className="field" htmlFor="tx-patient">
         <span>Pasien</span>
-        <select
+        <SearchableSelect
           id="tx-patient"
           value={patientId}
-          onChange={(ev) => onPatientId(ev.target.value)}
-        >
-          <option value="">— Pilih pasien —</option>
-          {patients.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.id} — {p.name}
-            </option>
-          ))}
-        </select>
+          onChange={onPatientId}
+          items={patientItems}
+          emptyOptionLabel="— Pilih pasien —"
+          placeholder="— Pilih pasien —"
+          disabled={patients.length === 0}
+        />
       </label>
 
       <div className="tx-lines-section">

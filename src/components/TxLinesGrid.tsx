@@ -1,5 +1,7 @@
+import { useMemo } from 'react'
 import type { DraftLine, Product } from '../lib/types'
 import { formatIdr } from '../utils/format'
+import { SearchableSelect } from './SearchableSelect'
 
 const QTY_MAX = 999_999
 
@@ -16,6 +18,15 @@ export function TxLinesGrid({
   onUpdate,
   onRemove,
 }: Props) {
+  const productItems = useMemo(
+    () =>
+      products.map((p) => ({
+        value: p.id,
+        label: `${p.name} (${formatIdr(p.price)})`,
+      })),
+    [products],
+  )
+
   function setQty(i: number, raw: string) {
     const n = Number(raw)
     if (raw === '' || Number.isNaN(n)) {
@@ -35,20 +46,15 @@ export function TxLinesGrid({
       </div>
       {draftLines.map((row, i) => (
         <div key={i} className="tx-line">
-          <select
+          <SearchableSelect
             value={row.productId}
-            onChange={(ev) =>
-              onUpdate(i, { productId: ev.target.value })
-            }
-            aria-label={`Barang baris ${i + 1}`}
-          >
-            <option value="">— Barang —</option>
-            {products.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name} ({formatIdr(p.price)})
-              </option>
-            ))}
-          </select>
+            onChange={(productId) => onUpdate(i, { productId })}
+            items={productItems}
+            emptyOptionLabel="— Barang —"
+            placeholder="— Barang —"
+            ariaLabel={`Barang baris ${i + 1}`}
+            disabled={products.length === 0}
+          />
           <input
             className="qty"
             type="number"

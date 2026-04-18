@@ -221,6 +221,10 @@ export function ProductPanel({ products, onAdd, onImportProducts }: Props) {
       <Toast message={message} onDismiss={clear} variant={variant} />
 
       <h2 id="h-barang">Daftar harga barang</h2>
+      <p className="panel__hint">
+        Master referensi nama dan harga untuk dipilih di tab Transaksi; tiap
+        barang mendapat kode otomatis. Data disimpan di perangkat ini.
+      </p>
 
       <MasterDataIoBar
         ariaLabel="Ekspor dan impor daftar barang"
