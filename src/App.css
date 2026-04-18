@@ -709,6 +709,10 @@
   white-space: nowrap;
 }
 
+.data-table thead th.data-table__th-actions {
+  vertical-align: middle;
+}
+
 .data-table__row--archived td {
   opacity: 0.78;
 }
