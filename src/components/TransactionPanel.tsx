@@ -113,31 +113,13 @@ export function TransactionPanel({
           />
         </div>
       )}
-
-      {!missingMaster && patientId && previewRows.length === 0 && (
-        <p className="panel__microcopy no-print" role="note">
-          Pilih barang di setiap baris; pratinjau invoice terisi otomatis.
-        </p>
-      )}
-
       {!missingMaster && (
-        <div className="panel-print-actions no-print">
-          <button
-            type="button"
-            className="btn"
-            onClick={() => window.print()}
-            disabled={previewRows.length === 0}
-          >
-            Cetak pratinjau invoice
-          </button>
-        </div>
+        <InvoicePreview
+          patient={patient}
+          rows={previewRows}
+          previewTotal={previewTotal}
+        />
       )}
-
-      <InvoicePreview
-        patient={patient}
-        rows={previewRows}
-        previewTotal={previewTotal}
-      />
     </section>
   )
 }
