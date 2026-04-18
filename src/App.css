@@ -644,19 +644,10 @@
   width: 100%;
   min-width: 0;
   margin: 0;
-  padding: 0.45rem 0.65rem;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: var(--surface-muted);
+  padding: 0;
+  border: none;
+  background: transparent;
   box-sizing: border-box;
-}
-
-.table-toolbar__label {
-  flex-shrink: 0;
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: var(--text-muted);
-  letter-spacing: 0.02em;
 }
 
 .table-toolbar__search input[type='search'] {
@@ -1494,24 +1485,6 @@
   .panel-io__report-print {
     margin-inline-start: 0;
     width: 100%;
-  }
-
-  .table-toolbar__search {
-    padding: 0;
-    border: none;
-    background: transparent;
-  }
-
-  .table-toolbar__label {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
   }
 
   /* Judul & deskripsi scroll; menu sticky di bawah notch (safe-area). */

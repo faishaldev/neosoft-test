@@ -3,11 +3,11 @@ type Props = {
   value: string
   onChange: (value: string) => void
   placeholder?: string
-  /** Label kiri input (desktop); di layar sempit disembunyikan tetap aksesibel. */
+  /** Nama aksesibilitas untuk input (default: "Cari"). */
   label?: string
 }
 
-/** Input pencarian di atas tabel data. */
+/** Input pencarian di atas tabel data — tanpa label/teks luar, lebar penuh. */
 export function TableSearchBar({
   id,
   value,
@@ -17,8 +17,7 @@ export function TableSearchBar({
 }: Props) {
   return (
     <div className="table-toolbar no-print">
-      <label className="table-toolbar__search" htmlFor={id}>
-        <span className="table-toolbar__label">{label}</span>
+      <div className="table-toolbar__search">
         <input
           id={id}
           type="search"
@@ -27,8 +26,9 @@ export function TableSearchBar({
           value={value}
           onChange={(ev) => onChange(ev.target.value)}
           placeholder={placeholder}
+          aria-label={label}
         />
-      </label>
+      </div>
     </div>
   )
 }
