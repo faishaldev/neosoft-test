@@ -1,15 +1,37 @@
 import { useCallback, useEffect, useState } from 'react'
 
-/** Pesan singkat yang hilang otomatis (umpan balik tanpa modal). */
-export function useFlash(durationMs = 3800) {
-  const [message, setMessage] = useState<string | null>(null)
+export type ToastVariant = 'success' | 'error'
+
+type FlashState = {
+  text: string
+  variant: ToastVariant
+}
+
+/** Toast otomatis hilang; durasi lebih lama untuk pesan error. */
+export function useFlash(successMs = 3800, errorMs = 5200) {
+  const [state, setState] = useState<FlashState | null>(null)
 
   useEffect(() => {
-    if (!message) return
-    const id = window.setTimeout(() => setMessage(null), durationMs)
+    if (!state) return
+    const ms = state.variant === 'error' ? errorMs : successMs
+    const id = window.setTimeout(() => setState(null), ms)
     return () => window.clearTimeout(id)
-  }, [message, durationMs])
+  }, [state, successMs, errorMs])
 
-  const flash = useCallback((msg: string) => setMessage(msg), [])
-  return { message, flash }
+  const flash = useCallback(
+    (msg: string, variant: ToastVariant = 'success') => {
+      setState({ text: msg, variant })
+    },
+    [],
+  )
+
+  const clear = useCallback(() => setState(null), [])
+  return {
+    message: state?.text ?? null,
+    variant: state?.variant ?? 'success',
+    flash,
+    clear,
+  }
 }
+
+export { useFlash as useToast }

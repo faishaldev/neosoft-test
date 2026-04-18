@@ -1,6 +1,8 @@
 import type { DraftLine, Product } from '../lib/types'
 import { formatIdr } from '../utils/format'
 
+const QTY_MAX = 999_999
+
 type Props = {
   draftLines: DraftLine[]
   products: Product[]
@@ -14,12 +16,22 @@ export function TxLinesGrid({
   onUpdate,
   onRemove,
 }: Props) {
+  function setQty(i: number, raw: string) {
+    const n = Number(raw)
+    if (raw === '' || Number.isNaN(n)) {
+      onUpdate(i, { qty: 1 })
+      return
+    }
+    const q = Math.min(QTY_MAX, Math.max(1, Math.floor(n)))
+    onUpdate(i, { qty: q })
+  }
+
   return (
     <div className="tx-lines">
       <div className="tx-lines__head">
-        <span>Item</span>
-        <span className="num">Jumlah</span>
-        <span />
+        <span className="tx-lines__head-item">Item</span>
+        <span className="tx-lines__head-qty">Jumlah</span>
+        <span className="tx-lines__head-actions" aria-hidden="true" />
       </div>
       {draftLines.map((row, i) => (
         <div key={i} className="tx-line">
@@ -28,7 +40,7 @@ export function TxLinesGrid({
             onChange={(ev) =>
               onUpdate(i, { productId: ev.target.value })
             }
-            required={i === 0}
+            aria-label={`Barang baris ${i + 1}`}
           >
             <option value="">— Barang —</option>
             {products.map((p) => (
@@ -41,10 +53,11 @@ export function TxLinesGrid({
             className="qty"
             type="number"
             min={1}
+            max={QTY_MAX}
+            step={1}
             value={row.qty}
-            onChange={(ev) =>
-              onUpdate(i, { qty: Number(ev.target.value) })
-            }
+            onChange={(ev) => setQty(i, ev.target.value)}
+            aria-label={`Jumlah baris ${i + 1}`}
           />
           <button
             type="button"

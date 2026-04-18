@@ -4,8 +4,12 @@ import { useFlash } from '../hooks/useFlash'
 import { useTableSort } from '../hooks/useTableSort'
 import { formatIdr } from '../utils/format'
 import { parsePriceInput } from '../utils/parseCurrency'
+import {
+  validatePriceRp,
+  validateProductName,
+} from '../utils/validation'
 import { EmptyHint } from './EmptyHint'
-import { FlashBanner } from './FlashBanner'
+import { Toast } from './Toast'
 import { SortableTh } from './SortableTh'
 
 type SortKey = 'no' | 'id' | 'price'
@@ -15,10 +19,13 @@ type Props = {
   onAdd: (name: string, price: number) => void
 }
 
+type FieldErrors = { name?: string; price?: string }
+
 export function ProductPanel({ products, onAdd }: Props) {
   const [name, setName] = useState('')
   const [price, setPrice] = useState('')
-  const { message, flash } = useFlash()
+  const [errors, setErrors] = useState<FieldErrors>({})
+  const { message, variant, flash, clear } = useFlash()
   const { sort, toggle } = useTableSort<SortKey>()
 
   const sorted = useMemo(() => {
@@ -39,49 +46,90 @@ export function ProductPanel({ products, onAdd }: Props) {
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    const p = parsePriceInput(price)
-    if (!name.trim() || Number.isNaN(p) || p < 0) return
-    onAdd(name, p)
+    const nameErr = validateProductName(name)
+    const priceErr = validatePriceRp(price)
+    const next: FieldErrors = {}
+    if (nameErr) next.name = nameErr
+    if (priceErr) next.price = priceErr
+    setErrors(next)
+    if (nameErr || priceErr) {
+      const msg = [nameErr, priceErr].filter(Boolean).join(' ')
+      flash(msg, 'error')
+      return
+    }
+
+    const parsed = parsePriceInput(price.trim())
+    onAdd(name.trim(), parsed)
     flash('Barang berhasil ditambahkan.')
     setName('')
     setPrice('')
+    setErrors({})
   }
 
   return (
     <section className="panel" aria-labelledby="h-barang">
-      <FlashBanner message={message} />
+      <Toast message={message} onDismiss={clear} variant={variant} />
 
       <h2 id="h-barang">Daftar harga barang</h2>
       <p className="panel__hint">
         Nomor urut (<strong>No</strong>) disimpan tetap untuk setiap barang.
       </p>
 
-      <form className="form-card" onSubmit={handleSubmit}>
-        <div className="form-card__fields form-row">
+      <form className="form-card" onSubmit={handleSubmit} noValidate>
+        <div className="form-card__fields form-row form-row--balanced">
           <label className="field">
             <span>Nama barang</span>
             <input
+              id="product-name"
               autoComplete="off"
               value={name}
-              onChange={(ev) => setName(ev.target.value)}
+              onChange={(ev) => {
+                setName(ev.target.value)
+                setErrors((prev) => ({ ...prev, name: undefined }))
+              }}
               placeholder="Contoh: Vitamin C"
-              required
+              aria-invalid={Boolean(errors.name)}
+              aria-describedby={
+                errors.name ? 'err-product-name' : undefined
+              }
             />
+            {errors.name ? (
+              <span id="err-product-name" className="sr-only">
+                {errors.name}
+              </span>
+            ) : null}
           </label>
           <label className="field">
             <span>Harga (Rp)</span>
             <input
+              id="product-price"
               inputMode="numeric"
               autoComplete="off"
               value={price}
-              onChange={(ev) => setPrice(ev.target.value)}
+              onChange={(ev) => {
+                setPrice(ev.target.value)
+                setErrors((prev) => ({ ...prev, price: undefined }))
+              }}
               placeholder="mis. 150000"
-              required
+              aria-invalid={Boolean(errors.price)}
+              aria-describedby={
+                errors.price ? 'err-product-price' : undefined
+              }
             />
+            {errors.price ? (
+              <span id="err-product-price" className="sr-only">
+                {errors.price}
+              </span>
+            ) : null}
           </label>
-          <button type="submit" className="btn btn--primary">
-            Tambah barang
-          </button>
+          <div className="form-row__action">
+            <span className="form-row__action-spacer" aria-hidden="true">
+              &nbsp;
+            </span>
+            <button type="submit" className="btn btn--primary">
+              Tambah barang
+            </button>
+          </div>
         </div>
       </form>
 

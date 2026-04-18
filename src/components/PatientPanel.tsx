@@ -2,8 +2,13 @@ import { useMemo, useState, type FormEvent } from 'react'
 import type { Patient } from '../lib/types'
 import { useFlash } from '../hooks/useFlash'
 import { useTableSort } from '../hooks/useTableSort'
+import {
+  normalizePhoneId,
+  validatePatientName,
+  validatePhoneId,
+} from '../utils/validation'
 import { EmptyHint } from './EmptyHint'
-import { FlashBanner } from './FlashBanner'
+import { Toast } from './Toast'
 import { SortableTh } from './SortableTh'
 
 type SortKey = 'no' | 'id' | 'name' | 'phone'
@@ -13,10 +18,13 @@ type Props = {
   onAdd: (name: string, phone: string) => void
 }
 
+type FieldErrors = { name?: string; phone?: string }
+
 export function PatientPanel({ patients, onAdd }: Props) {
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
-  const { message, flash } = useFlash()
+  const [errors, setErrors] = useState<FieldErrors>({})
+  const { message, variant, flash, clear } = useFlash()
   const { sort, toggle } = useTableSort<SortKey>()
 
   const sorted = useMemo(() => {
@@ -41,47 +49,88 @@ export function PatientPanel({ patients, onAdd }: Props) {
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    if (!name.trim()) return
-    onAdd(name, phone)
+    const nameErr = validatePatientName(name)
+    const phoneErr = validatePhoneId(phone)
+    const next: FieldErrors = {}
+    if (nameErr) next.name = nameErr
+    if (phoneErr) next.phone = phoneErr
+    setErrors(next)
+    if (nameErr || phoneErr) {
+      flash([nameErr, phoneErr].filter(Boolean).join(' '), 'error')
+      return
+    }
+
+    onAdd(name.trim(), normalizePhoneId(phone))
     flash('Pasien berhasil ditambahkan.')
     setName('')
     setPhone('')
+    setErrors({})
   }
 
   return (
     <section className="panel" aria-labelledby="h-pasien">
-      <FlashBanner message={message} />
+      <Toast message={message} onDismiss={clear} variant={variant} />
 
       <h2 id="h-pasien">Data pasien</h2>
       <p className="panel__hint">
         Nomor urut (<strong>No</strong>) disimpan tetap untuk setiap pasien.
       </p>
 
-      <form className="form-card" onSubmit={handleSubmit}>
-        <div className="form-card__fields form-row">
+      <form className="form-card" onSubmit={handleSubmit} noValidate>
+        <div className="form-card__fields form-row form-row--balanced">
           <label className="field">
             <span>Nama pasien</span>
             <input
+              id="patient-name"
               autoComplete="name"
               value={name}
-              onChange={(ev) => setName(ev.target.value)}
+              onChange={(ev) => {
+                setName(ev.target.value)
+                setErrors((prev) => ({ ...prev, name: undefined }))
+              }}
               placeholder="Nama lengkap"
-              required
+              aria-invalid={Boolean(errors.name)}
+              aria-describedby={
+                errors.name ? 'err-patient-name' : undefined
+              }
             />
+            {errors.name ? (
+              <span id="err-patient-name" className="sr-only">
+                {errors.name}
+              </span>
+            ) : null}
           </label>
           <label className="field">
             <span>Telepon</span>
             <input
+              id="patient-phone"
               inputMode="tel"
               autoComplete="tel"
               value={phone}
-              onChange={(ev) => setPhone(ev.target.value)}
-              placeholder="08xxxxxxxxxx"
+              onChange={(ev) => {
+                setPhone(ev.target.value)
+                setErrors((prev) => ({ ...prev, phone: undefined }))
+              }}
+              placeholder="08xxxxxxxxxx (opsional)"
+              aria-invalid={Boolean(errors.phone)}
+              aria-describedby={
+                errors.phone ? 'err-patient-phone' : undefined
+              }
             />
+            {errors.phone ? (
+              <span id="err-patient-phone" className="sr-only">
+                {errors.phone}
+              </span>
+            ) : null}
           </label>
-          <button type="submit" className="btn btn--primary">
-            Tambah pasien
-          </button>
+          <div className="form-row__action">
+            <span className="form-row__action-spacer" aria-hidden="true">
+              &nbsp;
+            </span>
+            <button type="submit" className="btn btn--primary">
+              Tambah pasien
+            </button>
+          </div>
         </div>
       </form>
 

@@ -5,7 +5,7 @@ import {
 } from '../lib/draftTx'
 import type { DraftLine, Patient, Product } from '../lib/types'
 import { useFlash } from '../hooks/useFlash'
-import { FlashBanner } from './FlashBanner'
+import { Toast } from './Toast'
 import { InvoicePreview } from './InvoicePreview'
 import { TransactionForm } from './TransactionForm'
 
@@ -31,7 +31,7 @@ export function TransactionPanel({
   const [draftLines, setDraftLines] = useState<DraftLine[]>([
     emptyLine(),
   ])
-  const { message, flash } = useFlash()
+  const { message, variant, flash, clear } = useFlash()
 
   const patient = patients.find((p) => p.id === patientId)
 
@@ -43,9 +43,22 @@ export function TransactionPanel({
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    if (!patient) return
+    if (!patientId) {
+      flash('Pilih pasien terlebih dahulu.', 'error')
+      return
+    }
+    if (!patient) {
+      flash('Pasien tidak valid; pilih ulang dari daftar.', 'error')
+      return
+    }
     const resolved = resolveDraftLines(draftLines, productById)
-    if (resolved.length === 0) return
+    if (resolved.length === 0) {
+      flash(
+        'Pilih minimal satu barang dan pastikan jumlah minimal 1.',
+        'error',
+      )
+      return
+    }
     onSubmit(patient, resolved)
     flash('Transaksi berhasil. Invoice bisa dicek di Laporan.')
     setDraftLines([emptyLine()])
@@ -57,13 +70,9 @@ export function TransactionPanel({
 
   const missingMaster = patients.length === 0 || products.length === 0
 
-  const canSubmit =
-    !!patient &&
-    resolveDraftLines(draftLines, productById).length > 0
-
   return (
     <section className="panel" aria-labelledby="h-tx">
-      <FlashBanner message={message} />
+      <Toast message={message} onDismiss={clear} variant={variant} />
 
       <h2 id="h-tx">Transaksi</h2>
       <p className="panel__hint">
@@ -90,7 +99,6 @@ export function TransactionPanel({
             setDraftLines((rows) => [...rows, emptyLine()])
           }
           onSubmit={handleSubmit}
-          submitDisabled={!canSubmit}
         />
       )}
 

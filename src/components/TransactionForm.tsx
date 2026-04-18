@@ -12,8 +12,6 @@ type Props = {
   onRemoveRow: (i: number) => void
   onAddRow: () => void
   onSubmit: (e: FormEvent) => void
-  /** Tombol simpan nonaktif bila pasien/item belum valid. */
-  submitDisabled?: boolean
 }
 
 export function TransactionForm({
@@ -26,16 +24,15 @@ export function TransactionForm({
   onRemoveRow,
   onAddRow,
   onSubmit,
-  submitDisabled = false,
 }: Props) {
   return (
-    <form className="tx-form" onSubmit={onSubmit}>
-      <label className="field field--block">
+    <form className="tx-form" onSubmit={onSubmit} noValidate>
+      <label className="field">
         <span>Pasien</span>
         <select
+          id="tx-patient"
           value={patientId}
           onChange={(ev) => onPatientId(ev.target.value)}
-          required
         >
           <option value="">— Pilih pasien —</option>
           {patients.map((p) => (
@@ -46,27 +43,20 @@ export function TransactionForm({
         </select>
       </label>
 
-      <TxLinesGrid
-        draftLines={draftLines}
-        products={products}
-        onUpdate={onUpdateRow}
-        onRemove={onRemoveRow}
-      />
+      <div className="tx-lines-section">
+        <TxLinesGrid
+          draftLines={draftLines}
+          products={products}
+          onUpdate={onUpdateRow}
+          onRemove={onRemoveRow}
+        />
+      </div>
 
       <div className="tx-actions">
         <button type="button" className="btn" onClick={onAddRow}>
           + Baris
         </button>
-        <button
-          type="submit"
-          className="btn btn--primary"
-          disabled={submitDisabled}
-          title={
-            submitDisabled
-              ? 'Pilih pasien dan minimal satu barang dengan jumlah valid'
-              : undefined
-          }
-        >
+        <button type="submit" className="btn btn--primary">
           Simpan transaksi
         </button>
       </div>
