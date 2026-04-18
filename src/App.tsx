@@ -1,10 +1,10 @@
 import { useAppData } from './hooks/useAppData'
 import { useSyncedTab } from './hooks/useSyncedTab'
+import { AppHeader } from './components/AppHeader'
 import { ProductPanel } from './components/ProductPanel'
 import { PatientPanel } from './components/PatientPanel'
 import { TransactionPanel } from './components/TransactionPanel'
 import { ReportPanel } from './components/ReportPanel'
-import { TAB_ITEMS } from './lib/tabs'
 import './App.css'
 
 export default function App() {
@@ -19,60 +19,69 @@ export default function App() {
 
   return (
     <div className="app">
-      <header className="app__header">
-        <h1 className="app__title">Penjualan &amp; Pasien</h1>
-        <p className="app__subtitle">
-          Daftar barang, pasien, transaksi invoice, laporan penjualan.
-        </p>
-        <nav className="tabs" aria-label="Menu utama">
-          {TAB_ITEMS.map(({ id, label }) => (
-            <button
-              key={id}
-              type="button"
-              className={
-                `tabs__btn${tab === id ? ' tabs__btn--active' : ''}`
-              }
-              onClick={() => setTab(id)}
-            >
-              {label}
-            </button>
-          ))}
-        </nav>
-      </header>
+      <a href="#main-content" className="skip-link">
+        Langsung ke konten
+      </a>
 
-      <main className="app__main">
+      <AppHeader tab={tab} onTabChange={setTab} />
+
+      <main id="main-content" className="app__main" tabIndex={-1}>
         {tab === 'barang' && (
-          <ProductPanel
-            products={data.products}
-            onAdd={(name, price) =>
-              dispatch({ type: 'ADD_PRODUCT', name, price })
-            }
-          />
+          <div
+            role="tabpanel"
+            id="panel-barang"
+            aria-labelledby="tab-barang"
+          >
+            <ProductPanel
+              products={data.products}
+              onAdd={(name, price) =>
+                dispatch({ type: 'ADD_PRODUCT', name, price })
+              }
+            />
+          </div>
         )}
         {tab === 'pasien' && (
-          <PatientPanel
-            patients={data.patients}
-            onAdd={(name, phone) =>
-              dispatch({ type: 'ADD_PATIENT', name, phone })
-            }
-          />
+          <div
+            role="tabpanel"
+            id="panel-pasien"
+            aria-labelledby="tab-pasien"
+          >
+            <PatientPanel
+              patients={data.patients}
+              onAdd={(name, phone) =>
+                dispatch({ type: 'ADD_PATIENT', name, phone })
+              }
+            />
+          </div>
         )}
         {tab === 'transaksi' && (
-          <TransactionPanel
-            patients={data.patients}
-            products={data.products}
-            productById={productById}
-            onSubmit={(patient, lines) =>
-              dispatch({ type: 'ADD_TRANSACTION', patient, lines })
-            }
-          />
+          <div
+            role="tabpanel"
+            id="panel-transaksi"
+            aria-labelledby="tab-transaksi"
+          >
+            <TransactionPanel
+              patients={data.patients}
+              products={data.products}
+              productById={productById}
+              onSubmit={(patient, lines) =>
+                dispatch({ type: 'ADD_TRANSACTION', patient, lines })
+              }
+            />
+          </div>
         )}
         {tab === 'laporan' && (
-          <ReportPanel
-            transactions={data.transactions}
-            salesByProduct={salesByProduct}
-            grandTotal={grandTotal}
-          />
+          <div
+            role="tabpanel"
+            id="panel-laporan"
+            aria-labelledby="tab-laporan"
+          >
+            <ReportPanel
+              transactions={data.transactions}
+              salesByProduct={salesByProduct}
+              grandTotal={grandTotal}
+            />
+          </div>
         )}
       </main>
     </div>

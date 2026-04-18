@@ -12,6 +12,8 @@ type Props = {
   onRemoveRow: (i: number) => void
   onAddRow: () => void
   onSubmit: (e: FormEvent) => void
+  /** Tombol simpan nonaktif bila pasien/item belum valid. */
+  submitDisabled?: boolean
 }
 
 export function TransactionForm({
@@ -24,6 +26,7 @@ export function TransactionForm({
   onRemoveRow,
   onAddRow,
   onSubmit,
+  submitDisabled = false,
 }: Props) {
   return (
     <form className="tx-form" onSubmit={onSubmit}>
@@ -54,7 +57,16 @@ export function TransactionForm({
         <button type="button" className="btn" onClick={onAddRow}>
           + Baris
         </button>
-        <button type="submit" className="btn btn--primary">
+        <button
+          type="submit"
+          className="btn btn--primary"
+          disabled={submitDisabled}
+          title={
+            submitDisabled
+              ? 'Pilih pasien dan minimal satu barang dengan jumlah valid'
+              : undefined
+          }
+        >
           Simpan transaksi
         </button>
       </div>

@@ -1,7 +1,7 @@
 import { txLineTotal } from '../lib/salesMetrics'
 import type { Transaction } from '../lib/types'
 import { formatDateId, formatIdr } from '../utils/format'
-import { TableEmpty } from './TableEmpty'
+import { EmptyHint } from './EmptyHint'
 
 type Props = { transactions: Transaction[] }
 
@@ -13,16 +13,25 @@ export function ReportTransactionsTable({ transactions }: Props) {
         <table className="data-table">
           <thead>
             <tr>
-              <th>No Invoice</th>
-              <th>Tanggal</th>
-              <th>ID pasien</th>
-              <th>Nama pasien</th>
-              <th className="num">Total</th>
+              <th scope="col">No Invoice</th>
+              <th scope="col">Tanggal</th>
+              <th scope="col">ID pasien</th>
+              <th scope="col">Nama pasien</th>
+              <th scope="col" className="num">
+                Total
+              </th>
             </tr>
           </thead>
           <tbody>
             {transactions.length === 0 ? (
-              <TableEmpty cols={5}>Belum ada transaksi.</TableEmpty>
+              <tr>
+                <td colSpan={5}>
+                  <EmptyHint
+                    title="Belum ada transaksi"
+                    hint="Simpan invoice dari tab Transaksi untuk melihat riwayat."
+                  />
+                </td>
+              </tr>
             ) : (
               transactions.map((t) => (
                 <tr key={t.invoiceNo}>

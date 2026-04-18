@@ -1,8 +1,10 @@
 import { useState, type FormEvent } from 'react'
 import type { Product } from '../lib/types'
+import { useFlash } from '../hooks/useFlash'
 import { formatIdr } from '../utils/format'
 import { parsePriceInput } from '../utils/parseCurrency'
-import { TableEmpty } from './TableEmpty'
+import { EmptyHint } from './EmptyHint'
+import { FlashBanner } from './FlashBanner'
 
 type Props = {
   products: Product[]
@@ -12,69 +14,84 @@ type Props = {
 export function ProductPanel({ products, onAdd }: Props) {
   const [name, setName] = useState('')
   const [price, setPrice] = useState('')
+  const { message, flash } = useFlash()
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
     const p = parsePriceInput(price)
     if (!name.trim() || Number.isNaN(p) || p < 0) return
     onAdd(name, p)
+    flash('Barang berhasil ditambahkan.')
     setName('')
     setPrice('')
   }
 
   return (
     <section className="panel" aria-labelledby="h-barang">
+      <FlashBanner message={message} />
+
       <h2 id="h-barang">Daftar harga barang</h2>
       <p className="panel__hint">
-        Kode barang otomatis: <strong>P-YYMM####</strong>{' '}
-        (contoh P-23030001).
+        Kode otomatis <strong>P-YYMM####</strong> (mis. P-26040001).
       </p>
 
-      <form className="form-row" onSubmit={handleSubmit}>
-        <label className="field">
-          <span>Nama barang</span>
-          <input
-            value={name}
-            onChange={(ev) => setName(ev.target.value)}
-            placeholder="Nama"
-            required
-          />
-        </label>
-        <label className="field">
-          <span>Harga (Rp)</span>
-          <input
-            inputMode="numeric"
-            value={price}
-            onChange={(ev) => setPrice(ev.target.value)}
-            placeholder="0"
-            required
-          />
-        </label>
-        <button type="submit" className="btn btn--primary">
-          Tambah
-        </button>
+      <form className="form-card" onSubmit={handleSubmit}>
+        <div className="form-card__fields form-row">
+          <label className="field">
+            <span>Nama barang</span>
+            <input
+              autoComplete="off"
+              value={name}
+              onChange={(ev) => setName(ev.target.value)}
+              placeholder="Contoh: Vitamin C"
+              required
+            />
+          </label>
+          <label className="field">
+            <span>Harga (Rp)</span>
+            <input
+              inputMode="numeric"
+              autoComplete="off"
+              value={price}
+              onChange={(ev) => setPrice(ev.target.value)}
+              placeholder="mis. 150000"
+              required
+            />
+          </label>
+          <button type="submit" className="btn btn--primary">
+            Tambah barang
+          </button>
+        </div>
       </form>
 
       <div className="table-wrap">
         <table className="data-table">
           <thead>
             <tr>
-              <th>No</th>
-              <th>Kode / nama</th>
-              <th className="num">Harga</th>
+              <th scope="col">No</th>
+              <th scope="col">Kode / nama</th>
+              <th scope="col" className="num">
+                Harga
+              </th>
             </tr>
           </thead>
           <tbody>
             {products.length === 0 ? (
-              <TableEmpty cols={3}>Belum ada barang.</TableEmpty>
+              <tr>
+                <td colSpan={3}>
+                  <EmptyHint
+                    title="Belum ada barang"
+                    hint="Gunakan formulir di atas untuk menambah item pertama."
+                  />
+                </td>
+              </tr>
             ) : (
               products.map((p, i) => (
                 <tr key={p.id}>
                   <td>{i + 1}</td>
                   <td>
                     <span className="mono">{p.id}</span>
-                    <br />
-                    {p.name}
+                    <span className="product-name">{p.name}</span>
                   </td>
                   <td className="num">{formatIdr(p.price)}</td>
                 </tr>

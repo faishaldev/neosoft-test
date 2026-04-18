@@ -6,3 +6,6 @@ export const TAB_ITEMS: readonly { id: Tab; label: string }[] = [
   { id: 'transaksi', label: 'Transaksi' },
   { id: 'laporan', label: 'Laporan penjualan' },
 ]
+
+/** Urutan untuk navigasi keyboard di tab bar. */
+export const TAB_ORDER: Tab[] = TAB_ITEMS.map((t) => t.id)

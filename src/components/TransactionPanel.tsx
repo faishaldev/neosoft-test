@@ -4,6 +4,8 @@ import {
   resolveDraftLines,
 } from '../lib/draftTx'
 import type { DraftLine, Patient, Product } from '../lib/types'
+import { useFlash } from '../hooks/useFlash'
+import { FlashBanner } from './FlashBanner'
 import { InvoicePreview } from './InvoicePreview'
 import { TransactionForm } from './TransactionForm'
 
@@ -29,6 +31,7 @@ export function TransactionPanel({
   const [draftLines, setDraftLines] = useState<DraftLine[]>([
     emptyLine(),
   ])
+  const { message, flash } = useFlash()
 
   const patient = patients.find((p) => p.id === patientId)
 
@@ -44,6 +47,7 @@ export function TransactionPanel({
     const resolved = resolveDraftLines(draftLines, productById)
     if (resolved.length === 0) return
     onSubmit(patient, resolved)
+    flash('Transaksi berhasil. Invoice bisa dicek di Laporan.')
     setDraftLines([emptyLine()])
     setPatientId('')
   }
@@ -53,19 +57,24 @@ export function TransactionPanel({
 
   const missingMaster = patients.length === 0 || products.length === 0
 
+  const canSubmit =
+    !!patient &&
+    resolveDraftLines(draftLines, productById).length > 0
+
   return (
     <section className="panel" aria-labelledby="h-tx">
+      <FlashBanner message={message} />
+
       <h2 id="h-tx">Transaksi</h2>
       <p className="panel__hint">
-        Pilih pasien dan item; nomor invoice format{' '}
-        <strong>INV-YYMM####</strong>.
+        Nomor invoice otomatis <strong>INV-YYMM####</strong>.
       </p>
 
       {missingMaster ? (
-        <p className="panel__warn">
-          Lengkapi minimal satu barang dan satu pasien di tab lain terlebih
-          dahulu.
-        </p>
+        <div className="panel__warn panel__warn--rich">
+          <strong>Langkah berikutnya:</strong> tambah minimal satu barang (
+          tab Daftar barang) dan satu pasien (tab Data pasien).
+        </div>
       ) : (
         <TransactionForm
           patients={patients}
@@ -81,7 +90,14 @@ export function TransactionPanel({
             setDraftLines((rows) => [...rows, emptyLine()])
           }
           onSubmit={handleSubmit}
+          submitDisabled={!canSubmit}
         />
+      )}
+
+      {!missingMaster && patientId && previewRows.length === 0 && (
+        <p className="panel__microcopy" role="note">
+          Pilih barang di setiap baris; pratinjau invoice terisi otomatis.
+        </p>
       )}
 
       <InvoicePreview

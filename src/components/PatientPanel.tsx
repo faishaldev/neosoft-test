@@ -1,6 +1,8 @@
 import { useState, type FormEvent } from 'react'
 import type { Patient } from '../lib/types'
-import { TableEmpty } from './TableEmpty'
+import { useFlash } from '../hooks/useFlash'
+import { EmptyHint } from './EmptyHint'
+import { FlashBanner } from './FlashBanner'
 
 type Props = {
   patients: Patient[]
@@ -10,59 +12,74 @@ type Props = {
 export function PatientPanel({ patients, onAdd }: Props) {
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
+  const { message, flash } = useFlash()
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
     if (!name.trim()) return
     onAdd(name, phone)
+    flash('Pasien berhasil ditambahkan.')
     setName('')
     setPhone('')
   }
 
   return (
     <section className="panel" aria-labelledby="h-pasien">
+      <FlashBanner message={message} />
+
       <h2 id="h-pasien">Data pasien</h2>
       <p className="panel__hint">
-        Kode pasien otomatis: <strong>EM-YYMM####</strong>{' '}
-        (contoh EM-23030001).
+        Kode otomatis <strong>EM-YYMM####</strong> (mis. EM-26040001).
       </p>
 
-      <form className="form-row" onSubmit={handleSubmit}>
-        <label className="field">
-          <span>Nama pasien</span>
-          <input
-            value={name}
-            onChange={(ev) => setName(ev.target.value)}
-            placeholder="Nama"
-            required
-          />
-        </label>
-        <label className="field">
-          <span>Telepon</span>
-          <input
-            value={phone}
-            onChange={(ev) => setPhone(ev.target.value)}
-            placeholder="08…"
-          />
-        </label>
-        <button type="submit" className="btn btn--primary">
-          Tambah
-        </button>
+      <form className="form-card" onSubmit={handleSubmit}>
+        <div className="form-card__fields form-row">
+          <label className="field">
+            <span>Nama pasien</span>
+            <input
+              autoComplete="name"
+              value={name}
+              onChange={(ev) => setName(ev.target.value)}
+              placeholder="Nama lengkap"
+              required
+            />
+          </label>
+          <label className="field">
+            <span>Telepon</span>
+            <input
+              inputMode="tel"
+              autoComplete="tel"
+              value={phone}
+              onChange={(ev) => setPhone(ev.target.value)}
+              placeholder="08xxxxxxxxxx"
+            />
+          </label>
+          <button type="submit" className="btn btn--primary">
+            Tambah pasien
+          </button>
+        </div>
       </form>
 
       <div className="table-wrap">
         <table className="data-table">
           <thead>
             <tr>
-              <th>No</th>
-              <th>ID</th>
-              <th>Nama pasien</th>
-              <th>Telepon</th>
+              <th scope="col">No</th>
+              <th scope="col">ID</th>
+              <th scope="col">Nama pasien</th>
+              <th scope="col">Telepon</th>
             </tr>
           </thead>
           <tbody>
             {patients.length === 0 ? (
-              <TableEmpty cols={4}>Belum ada pasien.</TableEmpty>
+              <tr>
+                <td colSpan={4}>
+                  <EmptyHint
+                    title="Belum ada pasien"
+                    hint="Tambahkan pasien agar bisa dipilih di Transaksi."
+                  />
+                </td>
+              </tr>
             ) : (
               patients.map((p, i) => (
                 <tr key={p.id}>

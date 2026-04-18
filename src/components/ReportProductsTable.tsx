@@ -1,6 +1,6 @@
 import type { ProductSaleAgg } from '../lib/salesMetrics'
 import { formatIdr } from '../utils/format'
-import { TableEmpty } from './TableEmpty'
+import { EmptyHint } from './EmptyHint'
 
 type Props = { rows: ProductSaleAgg[] }
 
@@ -12,15 +12,26 @@ export function ReportProductsTable({ rows }: Props) {
         <table className="data-table">
           <thead>
             <tr>
-              <th>Kode (referensi)</th>
-              <th>Nama barang</th>
-              <th className="num">Qty terjual</th>
-              <th className="num">Subtotal</th>
+              <th scope="col">Kode (referensi)</th>
+              <th scope="col">Nama barang</th>
+              <th scope="col" className="num">
+                Qty terjual
+              </th>
+              <th scope="col" className="num">
+                Subtotal
+              </th>
             </tr>
           </thead>
           <tbody>
             {rows.length === 0 ? (
-              <TableEmpty cols={4}>—</TableEmpty>
+              <tr>
+                <td colSpan={4}>
+                  <EmptyHint
+                    title="Belum ada agregasi"
+                    hint="Data terisi setelah ada transaksi dengan barang."
+                  />
+                </td>
+              </tr>
             ) : (
               rows.map((r) => (
                 <tr key={r.id}>
