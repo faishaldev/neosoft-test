@@ -5,6 +5,15 @@ import {
 } from '../lib/draftTx'
 import type { DraftLine, Patient, Product } from '../lib/types'
 import { useFlash } from '../hooks/useFlash'
+import {
+  addDraftLine,
+  getSubmitError,
+  removeDraftLine,
+  WARN_MASTER,
+  emptyLine,
+  MESSAGES,
+  updateDraftLine,
+} from './transactionPanelHelpers'
 import { Toast } from './Toast'
 import { InvoicePreview } from './InvoicePreview'
 import { TransactionForm } from './TransactionForm'
@@ -18,8 +27,6 @@ type Props = {
     lines: { product: Product; qty: number }[],
   ) => void
 }
-
-const emptyLine = (): DraftLine => ({ productId: '', qty: 1 })
 
 export function TransactionPanel({
   patients,
@@ -35,32 +42,26 @@ export function TransactionPanel({
 
   const patient = patients.find((p) => p.id === patientId)
 
-  function updateRow(i: number, patch: Partial<DraftLine>) {
-    setDraftLines((rows) =>
-      rows.map((r, j) => (j === i ? { ...r, ...patch } : r)),
-    )
+  function updateRow(index: number, patch: Partial<DraftLine>) {
+    setDraftLines((rows) => updateDraftLine(rows, index, patch))
   }
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    if (!patientId) {
-      flash('Pilih pasien terlebih dahulu.', 'error')
-      return
-    }
-    if (!patient) {
-      flash('Pasien tidak valid; pilih ulang dari daftar.', 'error')
-      return
-    }
     const resolved = resolveDraftLines(draftLines, productById)
-    if (resolved.length === 0) {
-      flash(
-        'Pilih minimal satu barang dan pastikan jumlah minimal 1.',
-        'error',
-      )
+    const submitError = getSubmitError(
+      patientId,
+      Boolean(patient),
+      resolved.length,
+    )
+
+    if (submitError || !patient) {
+      flash(submitError ?? MESSAGES.invalidPatient, 'error')
       return
     }
+
     onSubmit(patient, resolved)
-    flash('Transaksi berhasil. Invoice bisa dicek di Laporan.')
+    flash(MESSAGES.success)
     setDraftLines([emptyLine()])
     setPatientId('')
   }
@@ -91,8 +92,7 @@ export function TransactionPanel({
 
       {missingMaster ? (
         <div className="panel__warn panel__warn--tx no-print">
-          Tambah minimal satu barang (
-          tab Daftar barang) dan satu pasien (tab Data pasien).
+          {WARN_MASTER}
         </div>
       ) : (
         <div className="no-print">
@@ -104,11 +104,9 @@ export function TransactionPanel({
             products={activeProducts}
             onUpdateRow={updateRow}
             onRemoveRow={(i) =>
-              setDraftLines((rows) => rows.filter((_, j) => j !== i))
+              setDraftLines((rows) => removeDraftLine(rows, i))
             }
-            onAddRow={() =>
-              setDraftLines((rows) => [...rows, emptyLine()])
-            }
+            onAddRow={() => setDraftLines((rows) => addDraftLine(rows))}
             onSubmit={handleSubmit}
           />
         </div>
