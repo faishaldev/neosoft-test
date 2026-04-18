@@ -1,4 +1,9 @@
-import { useMemo, useState, type FormEvent } from 'react'
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type FormEvent,
+} from 'react'
 import type { Patient } from '../lib/types'
 import { useFlash } from '../hooks/useFlash'
 import { usePagedSlice } from '../hooks/usePagedSlice'
@@ -30,6 +35,8 @@ type Props = {
   patients: Patient[]
   onAdd: (name: string, phone: string) => void
   onImportPatients: (rows: { name: string; phone: string }[]) => void
+  onUpdatePatient: (id: string, name: string, phone: string) => void
+  onSetPatientArchived: (id: string, archived: boolean) => void
 }
 
 type FieldErrors = { name?: string; phone?: string }
@@ -40,6 +47,15 @@ type PatientTableSectionProps = {
   sorted: Patient[]
   sort: TableSortState<SortKey> | null
   toggle: (key: SortKey) => void
+  editingId: string | null
+  editName: string
+  editPhone: string
+  onChangeEditName: (value: string) => void
+  onChangeEditPhone: (value: string) => void
+  onStartEdit: (p: Patient) => void
+  onSaveEdit: () => void
+  onCancelEdit: () => void
+  onToggleArchive: (p: Patient) => void
 }
 
 function PatientTableSection({
@@ -48,14 +64,24 @@ function PatientTableSection({
   sorted,
   sort,
   toggle,
+  editingId,
+  editName,
+  editPhone,
+  onChangeEditName,
+  onChangeEditPhone,
+  onStartEdit,
+  onSaveEdit,
+  onCancelEdit,
+  onToggleArchive,
 }: PatientTableSectionProps) {
   const pageData = usePagedSlice(sorted)
   return (
     <>
       <div className="table-wrap">
-        <table className="data-table">
+        <table className="data-table data-table--patients">
           <caption className="sr-only">
-            Data pasien; kolom No adalah nomor urut tersimpan.
+            Data pasien; kolom No adalah nomor urut tersimpan; baris boleh
+            diarsipkan agar tidak muncul di Transaksi.
           </caption>
           <thead>
             <tr>
@@ -84,12 +110,15 @@ function PatientTableSection({
                 sort={sort}
                 onSort={() => toggle('phone')}
               />
+              <th scope="col" className="data-table__th-actions">
+                Aksi
+              </th>
             </tr>
           </thead>
           <tbody>
             {patients.length === 0 ? (
               <tr>
-                <td colSpan={4}>
+                <td colSpan={5}>
                   <EmptyHint
                     title="Belum ada pasien"
                     hint="Tambahkan pasien agar bisa dipilih di Transaksi."
@@ -98,7 +127,7 @@ function PatientTableSection({
               </tr>
             ) : filteredPatients.length === 0 ? (
               <tr>
-                <td colSpan={4}>
+                <td colSpan={5}>
                   <EmptyHint
                     title="Tidak ada baris yang cocok"
                     hint="Sesuaikan kata kunci atau kosongkan kolom Cari."
@@ -106,14 +135,109 @@ function PatientTableSection({
                 </td>
               </tr>
             ) : (
-              pageData.slice.map((p) => (
-                <tr key={p.id}>
-                  <td className="num">{p.serialNo}</td>
-                  <td className="mono">{p.id}</td>
-                  <td>{p.name}</td>
-                  <td>{p.phone || '—'}</td>
-                </tr>
-              ))
+              pageData.slice.map((p) => {
+                const editing = editingId === p.id
+                return (
+                  <tr
+                    key={p.id}
+                    className={[
+                      p.archived ? 'data-table__row--archived' : '',
+                      editing ? 'data-table__row--editing' : '',
+                    ]
+                      .filter(Boolean)
+                      .join(' ') || undefined}
+                  >
+                    <td className="num">{p.serialNo}</td>
+                    <td className="mono">{p.id}</td>
+                    <td>
+                      {editing ? (
+                        <>
+                          <label className="sr-only" htmlFor={`edit-p-name-${p.id}`}>
+                            Nama pasien
+                          </label>
+                          <input
+                            id={`edit-p-name-${p.id}`}
+                            className="table-edit-input"
+                            autoComplete="name"
+                            value={editName}
+                            onChange={(ev) =>
+                              onChangeEditName(ev.target.value)
+                            }
+                          />
+                        </>
+                      ) : (
+                        <span className="patient-cell__name">
+                          {p.name}
+                          {p.archived ? (
+                            <span className="badge badge--muted"> Arsip</span>
+                          ) : null}
+                        </span>
+                      )}
+                    </td>
+                    <td>
+                      {editing ? (
+                        <>
+                          <label className="sr-only" htmlFor={`edit-p-phone-${p.id}`}>
+                            Telepon
+                          </label>
+                          <input
+                            id={`edit-p-phone-${p.id}`}
+                            className="table-edit-input"
+                            inputMode="tel"
+                            autoComplete="tel"
+                            value={editPhone}
+                            onChange={(ev) =>
+                              onChangeEditPhone(ev.target.value)
+                            }
+                          />
+                        </>
+                      ) : (
+                        p.phone || '—'
+                      )}
+                    </td>
+                    <td className="table-actions-cell">
+                      <div className="table-actions no-print">
+                        {editing ? (
+                          <>
+                            <button
+                              type="button"
+                              className="btn btn--compact btn--outline-accent"
+                              onClick={onSaveEdit}
+                            >
+                              Simpan
+                            </button>
+                            <button
+                              type="button"
+                              className="btn btn--compact btn--ghost"
+                              onClick={onCancelEdit}
+                            >
+                              Batal
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button
+                              type="button"
+                              className="btn btn--compact btn--ghost"
+                              onClick={() => onStartEdit(p)}
+                            >
+                              Ubah
+                            </button>
+                            <button
+                              type="button"
+                              className="btn btn--compact btn--ghost"
+                              onClick={() => onToggleArchive(p)}
+                              disabled={Boolean(editingId)}
+                            >
+                              {p.archived ? 'Batal arsip' : 'Arsipkan'}
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                )
+              })
             )}
           </tbody>
         </table>
@@ -133,13 +257,31 @@ export function PatientPanel({
   patients,
   onAdd,
   onImportPatients,
+  onUpdatePatient,
+  onSetPatientArchived,
 }: Props) {
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [errors, setErrors] = useState<FieldErrors>({})
   const [tableSearch, setTableSearch] = useState('')
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editName, setEditName] = useState('')
+  const [editPhone, setEditPhone] = useState('')
   const { message, variant, flash, clear } = useFlash()
   const { sort, toggle } = useTableSort<SortKey>()
+
+  useEffect(() => {
+    if (!editingId) return
+    function onKey(ev: KeyboardEvent) {
+      if (ev.key === 'Escape') {
+        setEditingId(null)
+        setEditName('')
+        setEditPhone('')
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [editingId])
 
   const filteredPatients = useMemo(() => {
     if (!tableSearch.trim()) return patients
@@ -151,6 +293,7 @@ export function PatientPanel({
           p.name,
           p.phone ?? '',
           p.phone ? p.phone.replace(/\D/g, '') : '',
+          p.archived ? 'diarsipkan arsip' : 'aktif',
         ],
         tableSearch,
       ),
@@ -197,6 +340,31 @@ export function PatientPanel({
     setErrors({})
   }
 
+  function startEdit(p: Patient) {
+    setEditingId(p.id)
+    setEditName(p.name)
+    setEditPhone(p.phone ?? '')
+  }
+
+  function cancelEdit() {
+    setEditingId(null)
+    setEditName('')
+    setEditPhone('')
+  }
+
+  function saveEdit() {
+    if (!editingId) return
+    const nameErr = validatePatientName(editName)
+    const phoneErr = validatePhoneId(editPhone)
+    if (nameErr || phoneErr) {
+      flash([nameErr, phoneErr].filter(Boolean).join(' '), 'error')
+      return
+    }
+    onUpdatePatient(editingId, editName.trim(), normalizePhoneId(editPhone))
+    flash('Pasien diperbarui.')
+    cancelEdit()
+  }
+
   async function handleImportFile(file: File) {
     let text: string
     try {
@@ -219,6 +387,17 @@ export function PatientPanel({
         ? '1 pasien berhasil diimpor (ID & nomor urut baru).'
         : `${result.rows.length} pasien berhasil diimpor (ID & nomor urut baru).`,
     )
+  }
+
+  function toggleArchive(p: Patient) {
+    const next = !p.archived
+    onSetPatientArchived(p.id, next)
+    flash(
+      next
+        ? 'Pasien diarsipkan (tidak dipilih di Transaksi).'
+        : 'Pasien ditampilkan lagi di Transaksi.',
+    )
+    if (editingId === p.id) cancelEdit()
   }
 
   return (
@@ -303,7 +482,7 @@ export function PatientPanel({
           id="patient-table-search"
           value={tableSearch}
           onChange={setTableSearch}
-          placeholder="No, ID, nama, atau telepon…"
+          placeholder="No, ID, nama, telepon, atau arsip…"
         />
         <PatientTableSection
           key={tableSearch}
@@ -312,6 +491,15 @@ export function PatientPanel({
           sorted={sorted}
           sort={sort}
           toggle={toggle}
+          editingId={editingId}
+          editName={editName}
+          editPhone={editPhone}
+          onChangeEditName={setEditName}
+          onChangeEditPhone={setEditPhone}
+          onStartEdit={startEdit}
+          onSaveEdit={saveEdit}
+          onCancelEdit={cancelEdit}
+          onToggleArchive={toggleArchive}
         />
       </div>
     </section>

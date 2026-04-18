@@ -10,7 +10,21 @@ import type {
 
 export type Action =
   | { type: 'ADD_PRODUCT'; name: string; price: number }
+  | {
+      type: 'UPDATE_PRODUCT'
+      id: string
+      name: string
+      price: number
+    }
+  | { type: 'SET_PRODUCT_ARCHIVED'; id: string; archived: boolean }
   | { type: 'ADD_PATIENT'; name: string; phone: string }
+  | {
+      type: 'UPDATE_PATIENT'
+      id: string
+      name: string
+      phone: string
+    }
+  | { type: 'SET_PATIENT_ARCHIVED'; id: string; archived: boolean }
   | {
       type: 'IMPORT_PRODUCTS'
       rows: readonly { name: string; price: number }[]
@@ -34,11 +48,35 @@ export function appReducer(state: AppData, action: Action): AppData {
         serialNo: nextSerialNo(state.products),
         name: action.name.trim(),
         price: action.price,
+        archived: false,
       }
       return {
         ...state,
         sequences,
         products: [...state.products, product],
+      }
+    }
+    case 'UPDATE_PRODUCT': {
+      if (!state.products.some((p) => p.id === action.id)) return state
+      return {
+        ...state,
+        products: state.products.map((p) =>
+          p.id === action.id
+            ? {
+                ...p,
+                name: action.name.trim(),
+                price: action.price,
+              }
+            : p,
+        ),
+      }
+    }
+    case 'SET_PRODUCT_ARCHIVED': {
+      return {
+        ...state,
+        products: state.products.map((p) =>
+          p.id === action.id ? { ...p, archived: action.archived } : p,
+        ),
       }
     }
     case 'ADD_PATIENT': {
@@ -48,11 +86,35 @@ export function appReducer(state: AppData, action: Action): AppData {
         serialNo: nextSerialNo(state.patients),
         name: action.name.trim(),
         phone: action.phone.trim(),
+        archived: false,
       }
       return {
         ...state,
         sequences,
         patients: [...state.patients, patient],
+      }
+    }
+    case 'UPDATE_PATIENT': {
+      if (!state.patients.some((p) => p.id === action.id)) return state
+      return {
+        ...state,
+        patients: state.patients.map((p) =>
+          p.id === action.id
+            ? {
+                ...p,
+                name: action.name.trim(),
+                phone: action.phone.trim(),
+              }
+            : p,
+        ),
+      }
+    }
+    case 'SET_PATIENT_ARCHIVED': {
+      return {
+        ...state,
+        patients: state.patients.map((p) =>
+          p.id === action.id ? { ...p, archived: action.archived } : p,
+        ),
       }
     }
     case 'IMPORT_PRODUCTS': {
@@ -66,6 +128,7 @@ export function appReducer(state: AppData, action: Action): AppData {
           serialNo: nextSerialNo(products),
           name: row.name.trim(),
           price: row.price,
+          archived: false,
         })
       }
       return {
@@ -85,6 +148,7 @@ export function appReducer(state: AppData, action: Action): AppData {
           serialNo: nextSerialNo(patients),
           name: row.name.trim(),
           phone: row.phone.trim(),
+          archived: false,
         })
       }
       return {

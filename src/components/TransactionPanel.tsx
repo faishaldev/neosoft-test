@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useMemo, useState, type FormEvent } from 'react'
 import {
   invoicePreviewSummary,
   resolveDraftLines,
@@ -68,7 +68,17 @@ export function TransactionPanel({
   const { rows: previewRows, total: previewTotal } =
     invoicePreviewSummary(draftLines, productById)
 
-  const missingMaster = patients.length === 0 || products.length === 0
+  const activeProducts = useMemo(
+    () => products.filter((p) => !p.archived),
+    [products],
+  )
+  const activePatients = useMemo(
+    () => patients.filter((p) => !p.archived),
+    [patients],
+  )
+
+  const missingMaster =
+    activePatients.length === 0 || activeProducts.length === 0
 
   return (
     <section className="panel" aria-labelledby="h-tx">
@@ -87,11 +97,11 @@ export function TransactionPanel({
       ) : (
         <div className="no-print">
           <TransactionForm
-            patients={patients}
+            patients={activePatients}
             patientId={patientId}
             onPatientId={setPatientId}
             draftLines={draftLines}
-            products={products}
+            products={activeProducts}
             onUpdateRow={updateRow}
             onRemoveRow={(i) =>
               setDraftLines((rows) => rows.filter((_, j) => j !== i))

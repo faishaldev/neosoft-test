@@ -225,6 +225,7 @@ export function exportPatientsJson(patients: Patient[]): string {
   const rows = patients.map((p) => ({
     nama: p.name,
     telepon: p.phone || '',
+    diarsipkan: Boolean(p.archived),
   }))
   return `${JSON.stringify(
     {

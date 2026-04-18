@@ -40,6 +40,12 @@ export default function App() {
               onImportProducts={(rows) =>
                 dispatch({ type: 'IMPORT_PRODUCTS', rows })
               }
+              onUpdateProduct={(id, name, price) =>
+                dispatch({ type: 'UPDATE_PRODUCT', id, name, price })
+              }
+              onSetProductArchived={(id, archived) =>
+                dispatch({ type: 'SET_PRODUCT_ARCHIVED', id, archived })
+              }
             />
           </div>
         )}
@@ -56,6 +62,12 @@ export default function App() {
               }
               onImportPatients={(rows) =>
                 dispatch({ type: 'IMPORT_PATIENTS', rows })
+              }
+              onUpdatePatient={(id, name, phone) =>
+                dispatch({ type: 'UPDATE_PATIENT', id, name, phone })
+              }
+              onSetPatientArchived={(id, archived) =>
+                dispatch({ type: 'SET_PATIENT_ARCHIVED', id, archived })
               }
             />
           </div>

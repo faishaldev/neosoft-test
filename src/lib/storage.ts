@@ -21,8 +21,14 @@ export function loadState(): AppData {
     const productsRaw = Array.isArray(p.products) ? p.products : []
     const patientsRaw = Array.isArray(p.patients) ? p.patients : []
     return {
-      products: migrateSerialProducts(productsRaw as Product[]),
-      patients: migrateSerialPatients(patientsRaw as Patient[]),
+      products: migrateSerialProducts(productsRaw as Product[]).map((x) => ({
+        ...x,
+        archived: Boolean(x.archived),
+      })),
+      patients: migrateSerialPatients(patientsRaw as Patient[]).map((x) => ({
+        ...x,
+        archived: Boolean(x.archived),
+      })),
       transactions: Array.isArray(p.transactions) ? p.transactions : [],
       sequences:
         p.sequences && typeof p.sequences === 'object' ? p.sequences : {},

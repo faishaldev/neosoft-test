@@ -224,6 +224,7 @@ export function exportProductsJson(products: Product[]): string {
   const rows = products.map((p) => ({
     nama: p.name,
     harga: p.price,
+    diarsipkan: Boolean(p.archived),
   }))
   return `${JSON.stringify(
     {

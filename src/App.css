@@ -464,6 +464,25 @@
   filter: brightness(1.02);
 }
 
+/** Border aksen — untuk aksi utama yang tidak ingin fill penuh (mis. Simpan inline di tabel) */
+.btn--outline-accent {
+  border-color: var(--accent);
+  background: transparent;
+  color: var(--accent);
+  box-shadow: none;
+}
+
+.btn--outline-accent:hover:not(:disabled) {
+  background: var(--accent-soft);
+  border-color: var(--accent-press);
+  color: var(--accent-press);
+}
+
+.btn--outline-accent:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  outline-offset: 2px;
+}
+
 .btn:disabled,
 .btn--primary:disabled {
   opacity: 0.55;
@@ -499,9 +518,9 @@
 }
 
 .table-pagination__controls {
-  display: flex;
+    display: flex;
   flex-wrap: wrap;
-  align-items: center;
+    align-items: center;
   gap: 0.5rem 0.65rem;
 }
 
@@ -525,7 +544,7 @@
 .table-toolbar__search {
   display: flex;
   flex-direction: row;
-  flex-wrap: wrap;
+    flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem 0.75rem;
   flex: 1 1 auto;
@@ -549,7 +568,7 @@
 .table-toolbar__search input[type='search'] {
   flex: 1 1 12rem;
   min-width: 0;
-  width: 100%;
+      width: 100%;
   max-width: 100%;
   font: inherit;
   font-weight: 500;
@@ -580,6 +599,179 @@
 .data-table--product-list th:nth-child(3),
 .data-table--product-list td:nth-child(3) {
   width: 8.25rem;
+}
+
+.data-table--product-list th:nth-child(4),
+.data-table--product-list td:nth-child(4) {
+  width: 9.75rem;
+}
+
+.data-table--product-list tbody td {
+  vertical-align: middle;
+}
+
+.data-table--patients th:last-child,
+.data-table--patients td:last-child {
+  width: 9.75rem;
+}
+
+.data-table--patients tbody td {
+  vertical-align: middle;
+}
+
+.data-table__th-actions {
+  text-align: left;
+  white-space: nowrap;
+}
+
+.data-table__row--archived td {
+  opacity: 0.78;
+}
+
+.data-table__row--archived:hover td {
+  opacity: 0.92;
+}
+
+.table-actions-cell {
+  vertical-align: middle !important;
+}
+
+.table-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  justify-content: flex-start;
+}
+
+.table-actions .btn.btn--compact {
+  min-height: var(--table-inline-control-height);
+  height: var(--table-inline-control-height);
+  padding-block: 0;
+  padding-inline: 0.65rem;
+  display: inline-flex;
+  align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.table-actions .btn:focus-visible {
+  outline-offset: 2px;
+}
+
+.table-actions .btn--ghost:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--brand) 38%, transparent);
+}
+
+.table-actions .btn--outline-accent:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent) 50%, transparent);
+}
+
+.table-edit-input {
+  font: inherit;
+  font-weight: 500;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  height: var(--table-inline-control-height);
+  min-height: var(--table-inline-control-height);
+  padding: 0 0.55rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--input-bg);
+  color: var(--text);
+  box-sizing: border-box;
+  line-height: 1.2;
+}
+
+.table-edit-input:focus {
+  outline: none;
+  border-color: var(--brand);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--brand) 28%, transparent);
+}
+
+.table-edit-input--flex {
+  flex: 1 1 0;
+  width: auto;
+  min-width: 4rem;
+}
+
+.table-edit-input--num {
+  text-align: right;
+}
+
+.table-edit-input--money {
+  width: 100%;
+}
+
+.table-cell--money {
+  min-width: 0;
+}
+
+.product-cell--edit-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.product-cell__code-chip {
+  flex: 0 0 auto;
+  max-width: 42%;
+  box-sizing: border-box;
+  min-height: var(--table-inline-control-height);
+  height: var(--table-inline-control-height);
+  padding: 0 0.45rem;
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: 0.02em;
+  color: var(--text-muted);
+  background: color-mix(in srgb, var(--surface-muted) 90%, var(--border));
+  border: 1px solid color-mix(in srgb, var(--border) 85%, transparent);
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.data-table__row--editing td {
+  vertical-align: middle;
+}
+
+.data-table__row--editing > td {
+  background: color-mix(in srgb, var(--brand) 7%, transparent);
+}
+
+.data-table__row--editing.data-table__row--archived > td {
+  background: color-mix(in srgb, var(--brand) 5%, transparent);
+}
+
+.badge {
+  display: inline-block;
+  margin-inline-start: 0.35rem;
+  padding: 0.12rem 0.35rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-radius: 4px;
+  vertical-align: middle;
+}
+
+.badge--muted {
+  background: color-mix(in srgb, var(--text-muted) 22%, transparent);
+  color: var(--text-muted);
+}
+
+.patient-cell__name {
+  font-weight: 500;
 }
 
 .product-cell--inline {
@@ -889,7 +1081,7 @@
 }
 
 .searchable-select__dropdown {
-  position: absolute;
+    position: absolute;
   z-index: 45;
   left: 0;
   right: 0;

@@ -1,4 +1,9 @@
-import { useMemo, useState, type FormEvent } from 'react'
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type FormEvent,
+} from 'react'
 import type { Product } from '../lib/types'
 import { useFlash } from '../hooks/useFlash'
 import { usePagedSlice } from '../hooks/usePagedSlice'
@@ -31,6 +36,8 @@ type Props = {
   products: Product[]
   onAdd: (name: string, price: number) => void
   onImportProducts: (rows: { name: string; price: number }[]) => void
+  onUpdateProduct: (id: string, name: string, price: number) => void
+  onSetProductArchived: (id: string, archived: boolean) => void
 }
 
 type FieldErrors = { name?: string; price?: string }
@@ -41,6 +48,15 @@ type ProductTableSectionProps = {
   sorted: Product[]
   sort: TableSortState<SortKey> | null
   toggle: (key: SortKey) => void
+  editingId: string | null
+  editName: string
+  editPrice: string
+  onChangeEditName: (value: string) => void
+  onChangeEditPrice: (value: string) => void
+  onStartEdit: (p: Product) => void
+  onSaveEdit: () => void
+  onCancelEdit: () => void
+  onToggleArchive: (p: Product) => void
 }
 
 function ProductTableSection({
@@ -49,6 +65,15 @@ function ProductTableSection({
   sorted,
   sort,
   toggle,
+  editingId,
+  editName,
+  editPrice,
+  onChangeEditName,
+  onChangeEditPrice,
+  onStartEdit,
+  onSaveEdit,
+  onCancelEdit,
+  onToggleArchive,
 }: ProductTableSectionProps) {
   const pageData = usePagedSlice(sorted)
   return (
@@ -56,7 +81,8 @@ function ProductTableSection({
       <div className="table-wrap">
         <table className="data-table data-table--product-list">
           <caption className="sr-only">
-            Daftar barang; kolom No adalah nomor urut tersimpan.
+            Daftar barang; kolom No adalah nomor urut tersimpan; baris boleh
+            diarsipkan agar tidak muncul di Transaksi.
           </caption>
           <thead>
             <tr>
@@ -80,12 +106,15 @@ function ProductTableSection({
                 onSort={() => toggle('price')}
                 alignEnd
               />
+              <th scope="col" className="data-table__th-actions">
+                Aksi
+              </th>
             </tr>
           </thead>
           <tbody>
             {products.length === 0 ? (
               <tr>
-                <td colSpan={3}>
+                <td colSpan={4}>
                   <EmptyHint
                     title="Belum ada barang"
                     hint="Gunakan formulir di atas untuk menambah item pertama."
@@ -94,7 +123,7 @@ function ProductTableSection({
               </tr>
             ) : filteredProducts.length === 0 ? (
               <tr>
-                <td colSpan={3}>
+                <td colSpan={4}>
                   <EmptyHint
                     title="Tidak ada baris yang cocok"
                     hint="Sesuaikan kata kunci atau kosongkan kolom Cari."
@@ -102,19 +131,119 @@ function ProductTableSection({
                 </td>
               </tr>
             ) : (
-              pageData.slice.map((p) => (
-                <tr key={p.id}>
-                  <td className="num">{p.serialNo}</td>
-                  <td className="product-cell product-cell--inline">
-                    <span className="product-cell__code">{p.id}</span>
-                    <span className="product-cell__sep" aria-hidden="true">
-                      ·
-                    </span>
-                    <span className="product-cell__name">{p.name}</span>
-                  </td>
-                  <td className="num">{formatIdr(p.price)}</td>
-                </tr>
-              ))
+              pageData.slice.map((p) => {
+                const editing = editingId === p.id
+                return (
+                  <tr
+                    key={p.id}
+                    className={[
+                      p.archived ? 'data-table__row--archived' : '',
+                      editing ? 'data-table__row--editing' : '',
+                    ]
+                      .filter(Boolean)
+                      .join(' ') || undefined}
+                  >
+                    <td className="num">{p.serialNo}</td>
+                    <td className="product-cell">
+                      {editing ? (
+                        <div className="product-cell--edit-row">
+                          <span className="product-cell__code-chip mono">
+                            {p.id}
+                          </span>
+                          <label className="sr-only" htmlFor={`edit-name-${p.id}`}>
+                            Nama barang
+                          </label>
+                          <input
+                            id={`edit-name-${p.id}`}
+                            className="table-edit-input table-edit-input--flex"
+                            autoComplete="off"
+                            value={editName}
+                            onChange={(ev) =>
+                              onChangeEditName(ev.target.value)
+                            }
+                          />
+                        </div>
+                      ) : (
+                        <div className="product-cell product-cell--inline">
+                          <span className="product-cell__code">{p.id}</span>
+                          <span
+                            className="product-cell__sep"
+                            aria-hidden="true"
+                          >
+                            ·
+                          </span>
+                          <span className="product-cell__name">{p.name}</span>
+                          {p.archived ? (
+                            <span className="badge badge--muted">Arsip</span>
+                          ) : null}
+                        </div>
+                      )}
+                    </td>
+                    <td className="num table-cell--money">
+                      {editing ? (
+                        <>
+                          <label className="sr-only" htmlFor={`edit-price-${p.id}`}>
+                            Harga
+                          </label>
+                          <input
+                            id={`edit-price-${p.id}`}
+                            className="table-edit-input table-edit-input--num table-edit-input--money"
+                            inputMode="numeric"
+                            autoComplete="off"
+                            value={editPrice}
+                            onChange={(ev) =>
+                              onChangeEditPrice(ev.target.value)
+                            }
+                          />
+                        </>
+                      ) : (
+                        formatIdr(p.price)
+                      )}
+                    </td>
+                    <td className="table-actions-cell">
+                      <div className="table-actions no-print">
+                        {editing ? (
+                          <>
+                            <button
+                              type="button"
+                              className="btn btn--compact btn--outline-accent"
+                              onClick={onSaveEdit}
+                            >
+                              Simpan
+                            </button>
+                            <button
+                              type="button"
+                              className="btn btn--compact btn--ghost"
+                              onClick={onCancelEdit}
+                            >
+                              Batal
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button
+                              type="button"
+                              className="btn btn--compact btn--ghost"
+                              onClick={() => onStartEdit(p)}
+                              disabled={Boolean(editingId)}
+                            >
+                              Ubah
+                            </button>
+                            <button
+                              type="button"
+                              className="btn btn--compact btn--ghost"
+                              onClick={() => onToggleArchive(p)}
+                              disabled={Boolean(editingId)}
+                            >
+                              {p.archived ? 'Batal arsip' : 'Arsipkan'}
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                )
+              })
             )}
           </tbody>
         </table>
@@ -130,13 +259,35 @@ function ProductTableSection({
   )
 }
 
-export function ProductPanel({ products, onAdd, onImportProducts }: Props) {
+export function ProductPanel({
+  products,
+  onAdd,
+  onImportProducts,
+  onUpdateProduct,
+  onSetProductArchived,
+}: Props) {
   const [name, setName] = useState('')
   const [price, setPrice] = useState('')
   const [errors, setErrors] = useState<FieldErrors>({})
   const [tableSearch, setTableSearch] = useState('')
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editName, setEditName] = useState('')
+  const [editPrice, setEditPrice] = useState('')
   const { message, variant, flash, clear } = useFlash()
   const { sort, toggle } = useTableSort<SortKey>()
+
+  useEffect(() => {
+    if (!editingId) return
+    function onKey(ev: KeyboardEvent) {
+      if (ev.key === 'Escape') {
+        setEditingId(null)
+        setEditName('')
+        setEditPrice('')
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [editingId])
 
   const filteredProducts = useMemo(() => {
     if (!tableSearch.trim()) return products
@@ -148,6 +299,7 @@ export function ProductPanel({ products, onAdd, onImportProducts }: Props) {
           p.name,
           String(p.price),
           formatIdr(p.price),
+          p.archived ? 'diarsipkan arsip' : 'aktif',
         ],
         tableSearch,
       ),
@@ -192,6 +344,36 @@ export function ProductPanel({ products, onAdd, onImportProducts }: Props) {
     setErrors({})
   }
 
+  function startEdit(p: Product) {
+    setEditingId(p.id)
+    setEditName(p.name)
+    setEditPrice(String(p.price))
+  }
+
+  function cancelEdit() {
+    setEditingId(null)
+    setEditName('')
+    setEditPrice('')
+  }
+
+  function saveEdit() {
+    if (!editingId) return
+    const nameErr = validateProductName(editName)
+    const priceErr = validatePriceRp(editPrice)
+    if (nameErr || priceErr) {
+      flash([nameErr, priceErr].filter(Boolean).join(' '), 'error')
+      return
+    }
+    const parsed = parsePriceInput(editPrice.trim())
+    if (!Number.isFinite(parsed)) {
+      flash('Harga tidak valid.', 'error')
+      return
+    }
+    onUpdateProduct(editingId, editName.trim(), parsed)
+    flash('Barang diperbarui.')
+    cancelEdit()
+  }
+
   async function handleImportFile(file: File) {
     let text: string
     try {
@@ -214,6 +396,13 @@ export function ProductPanel({ products, onAdd, onImportProducts }: Props) {
         ? '1 barang berhasil diimpor (kode & nomor urut baru).'
         : `${result.rows.length} barang berhasil diimpor (kode & nomor urut baru).`,
     )
+  }
+
+  function toggleArchive(p: Product) {
+    const next = !p.archived
+    onSetProductArchived(p.id, next)
+    flash(next ? 'Barang diarsipkan (tidak dipilih di Transaksi).' : 'Barang ditampilkan lagi di Transaksi.')
+    if (editingId === p.id) cancelEdit()
   }
 
   return (
@@ -298,7 +487,7 @@ export function ProductPanel({ products, onAdd, onImportProducts }: Props) {
           id="product-table-search"
           value={tableSearch}
           onChange={setTableSearch}
-          placeholder="No, kode, nama, atau nominal…"
+          placeholder="No, kode, nama, nominal, atau arsip…"
         />
         <ProductTableSection
           key={tableSearch}
@@ -307,6 +496,15 @@ export function ProductPanel({ products, onAdd, onImportProducts }: Props) {
           sorted={sorted}
           sort={sort}
           toggle={toggle}
+          editingId={editingId}
+          editName={editName}
+          editPrice={editPrice}
+          onChangeEditName={setEditName}
+          onChangeEditPrice={setEditPrice}
+          onStartEdit={startEdit}
+          onSaveEdit={saveEdit}
+          onCancelEdit={cancelEdit}
+          onToggleArchive={toggleArchive}
         />
       </div>
     </section>

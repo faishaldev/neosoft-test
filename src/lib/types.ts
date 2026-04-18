@@ -4,6 +4,8 @@ export interface Product {
   serialNo: number
   name: string
   price: number
+  /** Disembunyikan dari pemilihan Transaksi; tetap ada di laporan historis. */
+  archived?: boolean
 }
 
 export interface Patient {
@@ -11,6 +13,8 @@ export interface Patient {
   serialNo: number
   name: string
   phone: string
+  /** Disembunyikan dari pemilihan Transaksi; tetap ada di laporan historis. */
+  archived?: boolean
 }
 
 export interface TxLine {
