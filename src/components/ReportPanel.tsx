@@ -2,6 +2,7 @@ import type { ProductSaleAgg } from '../lib/salesMetrics'
 import type { Transaction } from '../lib/types'
 import { formatIdr } from '../utils/format'
 import { ReportProductsTable } from './ReportProductsTable'
+import { ReportToolbar } from './ReportToolbar'
 import { ReportTransactionsTable } from './ReportTransactionsTable'
 
 type Props = {
@@ -21,6 +22,12 @@ export function ReportPanel({
       <p className="panel__hint">
         Ringkasan transaksi (invoice) yang tersimpan di perangkat ini.
       </p>
+
+      <ReportToolbar
+        transactions={transactions}
+        salesByProduct={salesByProduct}
+        grandTotal={grandTotal}
+      />
 
       <div className="stat-grid">
         <div className="stat">

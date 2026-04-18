@@ -80,32 +80,47 @@ export function TransactionPanel({
       </p>
 
       {missingMaster ? (
-        <div className="panel__warn panel__warn--rich">
+        <div className="panel__warn panel__warn--rich no-print">
           <strong>Langkah berikutnya:</strong> tambah minimal satu barang (
           tab Daftar barang) dan satu pasien (tab Data pasien).
         </div>
       ) : (
-        <TransactionForm
-          patients={patients}
-          patientId={patientId}
-          onPatientId={setPatientId}
-          draftLines={draftLines}
-          products={products}
-          onUpdateRow={updateRow}
-          onRemoveRow={(i) =>
-            setDraftLines((rows) => rows.filter((_, j) => j !== i))
-          }
-          onAddRow={() =>
-            setDraftLines((rows) => [...rows, emptyLine()])
-          }
-          onSubmit={handleSubmit}
-        />
+        <div className="no-print">
+          <TransactionForm
+            patients={patients}
+            patientId={patientId}
+            onPatientId={setPatientId}
+            draftLines={draftLines}
+            products={products}
+            onUpdateRow={updateRow}
+            onRemoveRow={(i) =>
+              setDraftLines((rows) => rows.filter((_, j) => j !== i))
+            }
+            onAddRow={() =>
+              setDraftLines((rows) => [...rows, emptyLine()])
+            }
+            onSubmit={handleSubmit}
+          />
+        </div>
       )}
 
       {!missingMaster && patientId && previewRows.length === 0 && (
-        <p className="panel__microcopy" role="note">
+        <p className="panel__microcopy no-print" role="note">
           Pilih barang di setiap baris; pratinjau invoice terisi otomatis.
         </p>
+      )}
+
+      {!missingMaster && (
+        <div className="panel-print-actions no-print">
+          <button
+            type="button"
+            className="btn"
+            onClick={() => window.print()}
+            disabled={previewRows.length === 0}
+          >
+            Cetak pratinjau invoice
+          </button>
+        </div>
       )}
 
       <InvoicePreview

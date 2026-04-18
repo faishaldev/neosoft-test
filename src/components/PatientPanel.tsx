@@ -7,7 +7,13 @@ import {
   validatePatientName,
   validatePhoneId,
 } from '../utils/validation'
+import {
+  downloadPatientsExport,
+  formatPatientImportErrorToast,
+  parsePatientsImport,
+} from '../lib/importExport/patientsIo'
 import { EmptyHint } from './EmptyHint'
+import { MasterDataIoBar } from './MasterDataIoBar'
 import { TableSearchBar } from './TableSearchBar'
 import { Toast } from './Toast'
 import { SortableTh } from './SortableTh'
@@ -18,11 +24,16 @@ type SortKey = 'no' | 'id' | 'name' | 'phone'
 type Props = {
   patients: Patient[]
   onAdd: (name: string, phone: string) => void
+  onImportPatients: (rows: { name: string; phone: string }[]) => void
 }
 
 type FieldErrors = { name?: string; phone?: string }
 
-export function PatientPanel({ patients, onAdd }: Props) {
+export function PatientPanel({
+  patients,
+  onAdd,
+  onImportPatients,
+}: Props) {
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [errors, setErrors] = useState<FieldErrors>({})
@@ -86,16 +97,46 @@ export function PatientPanel({ patients, onAdd }: Props) {
     setErrors({})
   }
 
+  async function handleImportFile(file: File) {
+    let text: string
+    try {
+      text = await file.text()
+    } catch {
+      flash(
+        'Impor dibatalkan — berkas tidak bisa dibaca (coba lagi atau periksa izin).',
+        'error',
+      )
+      return
+    }
+    const result = parsePatientsImport(text, file.name)
+    if (!result.ok) {
+      flash(formatPatientImportErrorToast(result.errors), 'error')
+      return
+    }
+    onImportPatients(result.rows)
+    flash(
+      result.rows.length === 1
+        ? '1 pasien berhasil diimpor (ID & nomor urut baru).'
+        : `${result.rows.length} pasien berhasil diimpor (ID & nomor urut baru).`,
+    )
+  }
+
   return (
     <section className="panel" aria-labelledby="h-pasien">
       <Toast message={message} onDismiss={clear} variant={variant} />
 
       <h2 id="h-pasien">Data pasien</h2>
-      <p className="panel__hint">
-        Nomor urut (<strong>No</strong>) disimpan tetap untuk setiap pasien.
-      </p>
 
-      <form className="form-card" onSubmit={handleSubmit} noValidate>
+      <MasterDataIoBar
+        ariaLabel="Ekspor dan impor data pasien"
+        inputId="import-patients-file"
+        hint="CSV dengan header nama,telepon (telepon boleh kosong). JSON mengikuti format ekspor. Tiap baris impor mendapat ID & No baru."
+        onExportJson={() => downloadPatientsExport(patients, 'json')}
+        onExportCsv={() => downloadPatientsExport(patients, 'csv')}
+        onImportFile={handleImportFile}
+      />
+
+      <form className="form-card no-print" onSubmit={handleSubmit} noValidate>
         <div className="form-card__fields form-row form-row--balanced">
           <label className="field">
             <span>Nama pasien</span>

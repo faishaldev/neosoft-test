@@ -16,7 +16,7 @@ export function TableSearchBar({
   label = 'Cari',
 }: Props) {
   return (
-    <div className="table-toolbar">
+    <div className="table-toolbar no-print">
       <label className="table-toolbar__search" htmlFor={id}>
         <span className="table-toolbar__label">{label}</span>
         <input

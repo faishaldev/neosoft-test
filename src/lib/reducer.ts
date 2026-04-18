@@ -12,6 +12,14 @@ export type Action =
   | { type: 'ADD_PRODUCT'; name: string; price: number }
   | { type: 'ADD_PATIENT'; name: string; phone: string }
   | {
+      type: 'IMPORT_PRODUCTS'
+      rows: readonly { name: string; price: number }[]
+    }
+  | {
+      type: 'IMPORT_PATIENTS'
+      rows: readonly { name: string; phone: string }[]
+    }
+  | {
       type: 'ADD_TRANSACTION'
       patient: Patient
       lines: { product: Product; qty: number }[]
@@ -45,6 +53,44 @@ export function appReducer(state: AppData, action: Action): AppData {
         ...state,
         sequences,
         patients: [...state.patients, patient],
+      }
+    }
+    case 'IMPORT_PRODUCTS': {
+      let sequences = state.sequences
+      const products = [...state.products]
+      for (const row of action.rows) {
+        const { code, sequences: seq } = nextCode('product', sequences)
+        sequences = seq
+        products.push({
+          id: code,
+          serialNo: nextSerialNo(products),
+          name: row.name.trim(),
+          price: row.price,
+        })
+      }
+      return {
+        ...state,
+        sequences,
+        products,
+      }
+    }
+    case 'IMPORT_PATIENTS': {
+      let sequences = state.sequences
+      const patients = [...state.patients]
+      for (const row of action.rows) {
+        const { code, sequences: seq } = nextCode('patient', sequences)
+        sequences = seq
+        patients.push({
+          id: code,
+          serialNo: nextSerialNo(patients),
+          name: row.name.trim(),
+          phone: row.phone.trim(),
+        })
+      }
+      return {
+        ...state,
+        sequences,
+        patients,
       }
     }
     case 'ADD_TRANSACTION': {

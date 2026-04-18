@@ -37,6 +37,9 @@ export default function App() {
               onAdd={(name, price) =>
                 dispatch({ type: 'ADD_PRODUCT', name, price })
               }
+              onImportProducts={(rows) =>
+                dispatch({ type: 'IMPORT_PRODUCTS', rows })
+              }
             />
           </div>
         )}
@@ -50,6 +53,9 @@ export default function App() {
               patients={data.patients}
               onAdd={(name, phone) =>
                 dispatch({ type: 'ADD_PATIENT', name, phone })
+              }
+              onImportPatients={(rows) =>
+                dispatch({ type: 'IMPORT_PATIENTS', rows })
               }
             />
           </div>
