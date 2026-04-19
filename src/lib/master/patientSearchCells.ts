@@ -1,6 +1,5 @@
 import type { Patient } from '../types'
 
-/** Sel yang digabung untuk kolom Cari (pasien). */
 export function patientSearchCells(p: Patient): string[] {
   return [
     String(p.serialNo),

@@ -40,7 +40,6 @@ export function exportReportJson(
   )}\n`
 }
 
-/** Satu baris per invoice. */
 export function exportTransactionsCsv(transactions: Transaction[]): string {
   const header =
     'invoiceNo,tanggalISO,tanggalTampilan,idPasien,namaPasien,totalRp'

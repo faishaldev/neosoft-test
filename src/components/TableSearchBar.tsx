@@ -3,11 +3,10 @@ type Props = {
   value: string
   onChange: (value: string) => void
   placeholder?: string
-  /** Nama aksesibilitas untuk input (default: "Cari"). */
+
   label?: string
 }
 
-/** Input pencarian di atas tabel data — tanpa label/teks luar, lebar penuh. */
 export function TableSearchBar({
   id,
   value,

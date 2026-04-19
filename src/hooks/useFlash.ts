@@ -7,7 +7,6 @@ type FlashState = {
   variant: ToastVariant
 }
 
-/** Toast otomatis hilang; durasi lebih lama untuk pesan error. */
 export function useFlash(successMs = 3800, errorMs = 5200) {
   const [state, setState] = useState<FlashState | null>(null)
 

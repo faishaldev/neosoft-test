@@ -1,10 +1,6 @@
 import { useMemo, useState } from 'react'
 import { TABLE_PAGE_SIZE } from '../lib/pagination'
 
-/**
- * Mengiris array untuk halaman saat ini. Gunakan **key** pada komponen pembungkus
- * (mis. `key={tableSearch}`) untuk mengembalikan ke halaman 1 saat filter berubah.
- */
 export function usePagedSlice<T>(items: readonly T[]) {
   const [page, setPage] = useState(1)
   const total = items.length

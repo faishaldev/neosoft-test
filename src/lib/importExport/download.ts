@@ -1,4 +1,4 @@
-/** Unduh berkas di browser dengan nama yang aman. */
+
 export function triggerDownload(filename: string, body: string, mime: string) {
   const blob = new Blob([body], { type: `${mime};charset=utf-8` })
   const url = URL.createObjectURL(blob)

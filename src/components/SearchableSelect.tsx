@@ -22,7 +22,7 @@ type Props = {
   onChange: (value: string) => void
   items: SearchableSelectItem[]
   emptyOptionLabel: string
-  /** Shown on trigger when nothing selected */
+
   placeholder?: string
   searchPlaceholder?: string
   ariaLabel?: string

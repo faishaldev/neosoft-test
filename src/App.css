@@ -83,10 +83,6 @@
   box-shadow: var(--shadow-sm);
 }
 
-/**
- * Layar lebar: baris tombol ( .tabs--desktop ).
- * Layar sempit: menu kustom lebar penuh; daftar sejajar dengan pemicu.
- */
 .tabs-mobile {
   display: none;
   position: relative;
@@ -453,7 +449,6 @@
   margin-bottom: 1.25rem;
 }
 
-/** Baris utama: dua field fleksibel + tombol; isi lebar kartu; tombol sejajar dengan input. */
 .form-row--balanced {
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(11rem, 1.15fr) auto;
@@ -469,7 +464,6 @@
   min-width: 0;
 }
 
-/** Menyamakan tinggi baris label dengan kolom field (label tak terlihat). */
 .form-row__action-spacer {
   flex-shrink: 0;
   font-size: 0.82rem;
@@ -564,7 +558,6 @@
   filter: brightness(1.02);
 }
 
-/** Border aksen — untuk aksi utama yang tidak ingin fill penuh (mis. Simpan inline di tabel) */
 .btn--outline-accent {
   border-color: var(--accent);
   background: transparent;
@@ -1095,7 +1088,6 @@
   padding: 0.4rem 0.45rem;
 }
 
-/* Combobox pengganti <select> di Transaksi (cari di dalam daftar) */
 .searchable-select {
   position: relative;
   width: 100%;
@@ -1723,7 +1715,6 @@
     width: 100%;
   }
 
-  /* Judul & deskripsi scroll; menu sticky di bawah notch (safe-area). */
   .app__header {
     position: relative;
     top: auto;

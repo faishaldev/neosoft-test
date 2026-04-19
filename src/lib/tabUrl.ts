@@ -19,7 +19,6 @@ export function writeTabToUrl(tab: Tab): void {
   window.history.replaceState(null, '', next)
 }
 
-/** Utamakan navigasi browser (tombol mundur / maju). */
 export function subscribeTabFromUrl(onChange: (t: Tab) => void): () => void {
   const run = () => onChange(parseTabFromLocation())
   window.addEventListener('popstate', run)

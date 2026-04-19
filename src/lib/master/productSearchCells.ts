@@ -1,7 +1,6 @@
 import type { Product } from '../types'
 import { formatIdr } from '../../utils/format'
 
-/** Sel yang digabung untuk kolom Cari (barang). */
 export function productSearchCells(p: Product): string[] {
   return [
     String(p.serialNo),

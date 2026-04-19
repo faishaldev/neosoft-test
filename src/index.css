@@ -1,24 +1,18 @@
-/**
- * Design tokens aligned with neosoft.id (Elementor kit: Plus Jakarta Sans,
- * purple brand + orange accent — see https://neosoft.id/ )
- */
+
 :root {
   --font-sans:
     'Plus Jakarta Sans', system-ui, 'Segoe UI', Roboto, sans-serif;
 
-  /* Brand */
   --brand: #7152a2;
   --brand-deep: #4e2e89;
   --brand-soft: rgba(113, 82, 162, 0.1);
   --brand-border: #9b7fc4;
 
-  /* CTA / accent (marketing “Switch” orange) */
   --accent: #ef8733;
   --accent-press: #ed6a2d;
   --accent-soft: rgba(239, 135, 51, 0.12);
   --accent-glow: rgba(239, 135, 51, 0.35);
 
-  /* Surface & text (kit globals) */
   --text: #454545;
   --text-h: #4e2e89;
   --text-muted: #757575;
@@ -40,7 +34,6 @@
   --radius: 12px;
   --radius-lg: 16px;
 
-  /** Edit inline di tabel barang/pasien: input & tombol satu tinggi */
   --table-inline-control-height: 2.25rem;
 
   --shadow-sm:
@@ -112,7 +105,6 @@ body {
   outline-offset: 2px;
 }
 
-/* Hanya pembaca layar — teks bantuan untuk aria */
 .sr-only {
   position: absolute !important;
   width: 1px;

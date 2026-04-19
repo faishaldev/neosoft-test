@@ -1,6 +1,5 @@
 import type { Patient, Product } from './types'
 
-/** Nomor urut berikutnya (lebih besar dari semua yang ada). */
 export function nextSerialNo(
   items: readonly { serialNo?: number }[],
 ): number {
@@ -14,7 +13,6 @@ export function nextSerialNo(
   return max + 1
 }
 
-/** Data lama tanpa serialNo: isi berurutan setelah max yang sudah ada. */
 export function migrateSerialProducts(products: Product[]): Product[] {
   let max = products.reduce(
     (m, p) =>

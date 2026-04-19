@@ -1,7 +1,7 @@
 import { parsePriceInput } from './parseCurrency'
 
 const MAX_LABEL_LEN = 120
-/** Batas praktis per unit (Rp). */
+
 export const MAX_PRICE_RP = 999_999_999
 
 export type FieldError = string | null
@@ -36,9 +36,6 @@ export function validatePatientName(raw: string): FieldError {
   return null
 }
 
-/**
- * Kosong diperbolehkan; jika diisi harus pola nomor Indonesia (08…).
- */
 export function validatePhoneId(raw: string): FieldError {
   const t = raw.trim().replace(/\s+/g, '')
   if (!t) return null
@@ -51,7 +48,6 @@ export function validatePhoneId(raw: string): FieldError {
   return null
 }
 
-/** Normalisasi untuk disimpan (08…). */
 export function normalizePhoneId(raw: string): string {
   const t = raw.trim().replace(/\s+/g, '')
   if (!t) return ''

@@ -1,7 +1,7 @@
 import { useRef } from 'react'
 
 type Props = {
-  /** Nama grup untuk pembaca layar */
+
   ariaLabel: string
   inputId: string
   hint: string

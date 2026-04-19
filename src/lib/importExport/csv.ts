@@ -1,4 +1,4 @@
-/** Hilangkan BOM UTF-8 di awal teks. */
+
 export function stripBom(text: string): string {
   if (text.charCodeAt(0) === 0xfeff) return text.slice(1)
   return text
@@ -10,7 +10,6 @@ export function detectDelimiter(line: string): ',' | ';' {
   return semis > commas ? ';' : ','
 }
 
-/** Memisahkan nilai CSV sederhana; mendukung kutip ganda. */
 export function splitCsvLine(line: string, delim: ',' | ';'): string[] {
   const out: string[] = []
   let cur = ''

@@ -1,4 +1,4 @@
-/** Gabung kelas baris arsip + mode edit (tabel master). */
+
 export function rowStatusClass(
   archived?: boolean,
   editing?: boolean,

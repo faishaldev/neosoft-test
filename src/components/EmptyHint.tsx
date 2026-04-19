@@ -1,6 +1,5 @@
 type Props = { title: string; hint: string }
 
-/** Empty state yang lebih ramah daripada satu baris tabel kosong. */
 export function EmptyHint({ title, hint }: Props) {
   return (
     <div className="empty-hint">

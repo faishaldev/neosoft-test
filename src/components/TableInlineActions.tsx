@@ -1,8 +1,8 @@
 type Props = {
   editing: boolean
-  /** Ubah tidak bisa diklik (mis. produk: ada baris lain sedang diedit). */
+
   disableEdit?: boolean
-  /** Arsip tidak bisa diklik selama ada sesi edit aktif. */
+
   disableArchive?: boolean
   archived: boolean
   onSave: () => void
