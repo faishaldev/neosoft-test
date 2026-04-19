@@ -33,7 +33,9 @@ export function ProductTableRow({
   return (
     <tr className={rowStatusClass(p.archived, editing)}>
       <td className="num">{p.serialNo}</td>
-      <td className="mono product-cell__code">{p.id}</td>
+      <td>
+        <span className="product-cell__code">{p.id}</span>
+      </td>
       <td>
         {editing ? (
           <>
