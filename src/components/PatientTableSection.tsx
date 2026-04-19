@@ -20,10 +20,10 @@ type Props = {
   editPhone: string
   onChangeEditName: (value: string) => void
   onChangeEditPhone: (value: string) => void
-  onStartEdit: (p: Patient) => void
+  onStartEdit: (patient: Patient) => void
   onSaveEdit: () => void
   onCancelEdit: () => void
-  onToggleArchive: (p: Patient) => void
+  onToggleArchive: (patient: Patient) => void
 }
 
 export function PatientTableSection({
@@ -104,11 +104,11 @@ export function PatientTableSection({
                 </td>
               </tr>
             ) : (
-              pageData.slice.map((p) => (
+              pageData.slice.map((patient) => (
                 <PatientTableRow
-                  key={p.id}
-                  p={p}
-                  editing={editingId === p.id}
+                  key={patient.id}
+                  patient={patient}
+                  editing={editingId === patient.id}
                   editingAny={editingAny}
                   editName={editName}
                   editPhone={editPhone}

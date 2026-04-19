@@ -2,25 +2,30 @@ import { TAB_ITEMS, type Tab } from './tabs'
 
 export const TAB_QUERY_KEY = 'tab'
 
-const allowed = new Set<string>(TAB_ITEMS.map((x) => x.id))
+const allowedTabIds = new Set<string>(
+  TAB_ITEMS.map((tabItem) => tabItem.id),
+)
 
 export function parseTabFromLocation(): Tab {
   const raw = new URLSearchParams(window.location.search).get(
     TAB_QUERY_KEY,
   )
-  if (raw && allowed.has(raw)) return raw as Tab
+  if (raw && allowedTabIds.has(raw)) return raw as Tab
   return 'barang'
 }
 
 export function writeTabToUrl(tab: Tab): void {
   const url = new URL(window.location.href)
   url.searchParams.set(TAB_QUERY_KEY, tab)
-  const next = `${url.pathname}${url.search}${url.hash}`
-  window.history.replaceState(null, '', next)
+  const nextUrl = `${url.pathname}${url.search}${url.hash}`
+  window.history.replaceState(null, '', nextUrl)
 }
 
-export function subscribeTabFromUrl(onChange: (t: Tab) => void): () => void {
-  const run = () => onChange(parseTabFromLocation())
-  window.addEventListener('popstate', run)
-  return () => window.removeEventListener('popstate', run)
+export function subscribeTabFromUrl(
+  onChange: (tab: Tab) => void,
+): () => void {
+  const emitCurrentTab = () => onChange(parseTabFromLocation())
+  window.addEventListener('popstate', emitCurrentTab)
+  return () =>
+    window.removeEventListener('popstate', emitCurrentTab)
 }

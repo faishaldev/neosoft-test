@@ -11,14 +11,14 @@ import {
 export type PatientPanelProps = PatientPanelModelProps
 
 export function PatientPanel(props: PatientPanelProps) {
-  const m = usePatientPanelModel(props)
+  const patientPanelModel = usePatientPanelModel(props)
 
   return (
     <section className="panel" aria-labelledby="h-pasien">
       <Toast
-        message={m.message}
-        onDismiss={m.clearFlash}
-        variant={m.variant}
+        message={patientPanelModel.message}
+        onDismiss={patientPanelModel.clearFlash}
+        variant={patientPanelModel.variant}
       />
 
       <h2 id="h-pasien">Data pasien</h2>
@@ -34,49 +34,55 @@ export function PatientPanel(props: PatientPanelProps) {
           'CSV nama,telepon (telepon boleh kosong). JSON = format ekspor. ' +
           'Impor = ID & No baru.'
         }
-        onExportJson={m.exportJson}
-        onExportCsv={m.exportCsv}
-        onImportFile={m.handleImportFile}
+        onExportJson={patientPanelModel.exportJson}
+        onExportCsv={patientPanelModel.exportCsv}
+        onImportFile={patientPanelModel.handleImportFile}
       />
 
       <PatientAddForm
-        name={m.name}
-        phone={m.phone}
-        errors={m.errors}
-        onNameChange={(v) => {
-          m.setName(v)
-          m.setErrors((prev) => ({ ...prev, name: undefined }))
+        name={patientPanelModel.name}
+        phone={patientPanelModel.phone}
+        errors={patientPanelModel.errors}
+        onNameChange={(nextName) => {
+          patientPanelModel.setName(nextName)
+          patientPanelModel.setErrors((prevErrors) => ({
+            ...prevErrors,
+            name: undefined,
+          }))
         }}
-        onPhoneChange={(v) => {
-          m.setPhone(v)
-          m.setErrors((prev) => ({ ...prev, phone: undefined }))
+        onPhoneChange={(nextPhone) => {
+          patientPanelModel.setPhone(nextPhone)
+          patientPanelModel.setErrors((prevErrors) => ({
+            ...prevErrors,
+            phone: undefined,
+          }))
         }}
-        onSubmit={m.handleSubmit}
+        onSubmit={patientPanelModel.handleSubmit}
       />
 
       <div className="table-block">
         <TableSearchBar
           id="patient-table-search"
-          value={m.tableSearch}
-          onChange={m.setTableSearch}
+          value={patientPanelModel.tableSearch}
+          onChange={patientPanelModel.setTableSearch}
           placeholder="Cari — No, ID, nama, telepon, atau arsip…"
         />
         <PatientTableSection
-          key={m.tableSearch}
-          patients={m.patients}
-          filteredPatients={m.filteredPatients}
-          sorted={m.sorted}
-          sort={m.sort}
-          toggle={m.toggle}
-          editingId={m.editingId}
-          editName={m.editName}
-          editPhone={m.editPhone}
-          onChangeEditName={m.setEditName}
-          onChangeEditPhone={m.setEditPhone}
-          onStartEdit={m.startEdit}
-          onSaveEdit={m.saveEdit}
-          onCancelEdit={m.cancelEdit}
-          onToggleArchive={m.toggleArchive}
+          key={patientPanelModel.tableSearch}
+          patients={patientPanelModel.patients}
+          filteredPatients={patientPanelModel.filteredPatients}
+          sorted={patientPanelModel.sorted}
+          sort={patientPanelModel.sort}
+          toggle={patientPanelModel.toggle}
+          editingId={patientPanelModel.editingId}
+          editName={patientPanelModel.editName}
+          editPhone={patientPanelModel.editPhone}
+          onChangeEditName={patientPanelModel.setEditName}
+          onChangeEditPhone={patientPanelModel.setEditPhone}
+          onStartEdit={patientPanelModel.startEdit}
+          onSaveEdit={patientPanelModel.saveEdit}
+          onCancelEdit={patientPanelModel.cancelEdit}
+          onToggleArchive={patientPanelModel.toggleArchive}
         />
       </div>
     </section>

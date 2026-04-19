@@ -10,10 +10,12 @@ import {
 export type SearchableSelectItem = { value: string; label: string }
 
 function matchLabel(label: string, query: string): boolean {
-  const q = query.trim().toLowerCase()
-  if (!q) return true
-  const hay = label.toLowerCase()
-  return q.split(/\s+/).every((w) => hay.includes(w))
+  const normalizedQuery = query.trim().toLowerCase()
+  if (!normalizedQuery) return true
+  const normalizedLabel = label.toLowerCase()
+  return normalizedQuery
+    .split(/\s+/)
+    .every((queryWord) => normalizedLabel.includes(queryWord))
 }
 
 type Props = {
@@ -55,16 +57,20 @@ export function SearchableSelect({
 
   const filteredOptions = useMemo(() => {
     const [head, ...rest] = baseOptions
-    const q = search.trim()
-    if (!q) return baseOptions
-    const fr = rest.filter((it) => matchLabel(it.label, q))
-    return [head, ...fr]
+    const trimmedSearch = search.trim()
+    if (!trimmedSearch) return baseOptions
+    const matchedOptions = rest.filter((item) =>
+      matchLabel(item.label, trimmedSearch),
+    )
+    return [head, ...matchedOptions]
   }, [baseOptions, search])
 
   const displayLabel = useMemo(() => {
     if (!value) return null
-    const hit = items.find((i) => i.value === value)
-    return hit?.label ?? value
+    const selectedItem = items.find(
+      (item) => item.value === value,
+    )
+    return selectedItem?.label ?? value
   }, [value, items])
 
   const close = useCallback(() => {
@@ -74,11 +80,12 @@ export function SearchableSelect({
 
   useEffect(() => {
     if (!open) return
-    const t = window.requestAnimationFrame(() => {
+    const focusAnimationFrame = window.requestAnimationFrame(() => {
       searchRef.current?.focus()
       searchRef.current?.select()
     })
-    return () => window.cancelAnimationFrame(t)
+    return () =>
+      window.cancelAnimationFrame(focusAnimationFrame)
   }, [open])
 
   useEffect(() => {
@@ -124,7 +131,9 @@ export function SearchableSelect({
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-controls={listId}
-        onClick={() => !disabled && setOpen((o) => !o)}
+        onClick={() =>
+          !disabled && setOpen((isOpen) => !isOpen)
+        }
       >
         <span
           className={

@@ -55,39 +55,41 @@ function ReportTransactionsPaged({
             hint="Sesuaikan kata kunci atau kosongkan kolom Cari."
           />
         ) : (
-          pageData.slice.map((t) => (
-            <article key={t.invoiceNo} className="report-card">
-              <p className="report-card__title mono">{t.invoiceNo}</p>
+          pageData.slice.map((transaction) => (
+            <article key={transaction.invoiceNo} className="report-card">
+              <p className="report-card__title mono">
+                {transaction.invoiceNo}
+              </p>
               <dl className="report-card__meta">
                 <div>
                   <dt>Tanggal</dt>
-                  <dd>{formatDateId(t.dateISO)}</dd>
+                  <dd>{formatDateId(transaction.dateISO)}</dd>
                 </div>
                 <div>
                   <dt>ID pasien</dt>
-                  <dd className="mono">{t.patientId}</dd>
+                  <dd className="mono">{transaction.patientId}</dd>
                 </div>
                 <div>
                   <dt>Nama pasien</dt>
-                  <dd>{t.patientName}</dd>
+                  <dd>{transaction.patientName}</dd>
                 </div>
                 <div>
                   <dt>Total</dt>
-                  <dd>{formatIdr(txLineTotal(t))}</dd>
+                  <dd>{formatIdr(txLineTotal(transaction))}</dd>
                 </div>
                 <div>
                   <dt>Jumlah item</dt>
-                  <dd>{t.lines.length}</dd>
+                  <dd>{transaction.lines.length}</dd>
                 </div>
               </dl>
               <details className="report-card__lines">
                 <summary className="report-card__lines-summary">
-                  Detail barang ({t.lines.length})
+                  Detail barang ({transaction.lines.length})
                 </summary>
                 <ul className="report-card__lines-list">
-                  {t.lines.map((line, idx) => (
+                  {transaction.lines.map((line, lineIndex) => (
                     <li
-                      key={`${line.productId}-${idx}`}
+                      key={`${line.productId}-${lineIndex}`}
                       className="report-card__line-item"
                     >
                       <div className="report-card__line-head">
@@ -130,14 +132,14 @@ function ReportTransactionsPaged({
             </tr>
           </thead>
           <tbody>
-            {sorted.map((t) => (
-              <tr key={`print-${t.invoiceNo}`}>
-                <td className="mono">{t.invoiceNo}</td>
-                <td>{formatDateId(t.dateISO)}</td>
-                <td className="mono">{t.patientId}</td>
-                <td>{t.patientName}</td>
-                <td className="num">{formatIdr(txLineTotal(t))}</td>
-                <td className="num">{t.lines.length}</td>
+            {sorted.map((transaction) => (
+              <tr key={`print-${transaction.invoiceNo}`}>
+                <td className="mono">{transaction.invoiceNo}</td>
+                <td>{formatDateId(transaction.dateISO)}</td>
+                <td className="mono">{transaction.patientId}</td>
+                <td>{transaction.patientName}</td>
+                <td className="num">{formatIdr(txLineTotal(transaction))}</td>
+                <td className="num">{transaction.lines.length}</td>
               </tr>
             ))}
           </tbody>
@@ -163,9 +165,9 @@ export function ReportTransactionsTable({ transactions }: Props) {
 
   const filteredTx = useMemo(() => {
     if (!tableSearch.trim()) return transactions
-    return transactions.filter((t) => {
-      const total = txLineTotal(t)
-      const linesSearch = t.lines.flatMap((line) => [
+    return transactions.filter((transaction) => {
+      const transactionTotal = txLineTotal(transaction)
+      const lineSearchTokens = transaction.lines.flatMap((line) => [
         line.productId,
         line.productName,
         String(line.qty),
@@ -176,14 +178,14 @@ export function ReportTransactionsTable({ transactions }: Props) {
       ])
       return rowMatchesSearch(
         [
-          t.invoiceNo,
-          t.dateISO,
-          formatDateId(t.dateISO),
-          t.patientId,
-          t.patientName,
-          String(total),
-          formatIdr(total),
-          ...linesSearch,
+          transaction.invoiceNo,
+          transaction.dateISO,
+          formatDateId(transaction.dateISO),
+          transaction.patientId,
+          transaction.patientName,
+          String(transactionTotal),
+          formatIdr(transactionTotal),
+          ...lineSearchTokens,
         ],
         tableSearch,
       )
@@ -195,23 +197,37 @@ export function ReportTransactionsTable({ transactions }: Props) {
       SortKey,
       SortDir,
     ]
-    const m = [...filteredTx]
-    m.sort((a, b) => {
-      let c = 0
+    const sortedTransactions = [...filteredTx]
+    sortedTransactions.sort((leftTransaction, rightTransaction) => {
+      let sortCompareResult = 0
       if (sortKey === 'invoiceNo') {
-        c = a.invoiceNo.localeCompare(b.invoiceNo, 'id-ID')
+        sortCompareResult = leftTransaction.invoiceNo.localeCompare(
+          rightTransaction.invoiceNo,
+          'id-ID',
+        )
       } else if (sortKey === 'dateISO') {
-        c = a.dateISO.localeCompare(b.dateISO)
+        sortCompareResult = leftTransaction.dateISO.localeCompare(
+          rightTransaction.dateISO,
+        )
       } else if (sortKey === 'patientId') {
-        c = a.patientId.localeCompare(b.patientId, 'id-ID')
+        sortCompareResult = leftTransaction.patientId.localeCompare(
+          rightTransaction.patientId,
+          'id-ID',
+        )
       } else if (sortKey === 'patientName') {
-        c = a.patientName.localeCompare(b.patientName, 'id-ID')
+        sortCompareResult = leftTransaction.patientName.localeCompare(
+          rightTransaction.patientName,
+          'id-ID',
+        )
       } else {
-        c = txLineTotal(a) - txLineTotal(b)
+        sortCompareResult =
+          txLineTotal(leftTransaction) - txLineTotal(rightTransaction)
       }
-      return sortDir === 'asc' ? c : -c
+      return sortDir === 'asc'
+        ? sortCompareResult
+        : -sortCompareResult
     })
-    return m
+    return sortedTransactions
   }, [filteredTx, sortOption])
 
   return (

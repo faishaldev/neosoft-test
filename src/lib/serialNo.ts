@@ -3,46 +3,55 @@ import type { Patient, Product } from './types'
 export function nextSerialNo(
   items: readonly { serialNo?: number }[],
 ): number {
-  const max = items.reduce(
-    (m, x) =>
-      typeof x.serialNo === 'number' && Number.isFinite(x.serialNo)
-        ? Math.max(m, x.serialNo)
-        : m,
+  const maxSerialNo = items.reduce(
+    (currentMax, item) =>
+      typeof item.serialNo === 'number' &&
+      Number.isFinite(item.serialNo)
+        ? Math.max(currentMax, item.serialNo)
+        : currentMax,
     0,
   )
-  return max + 1
+  return maxSerialNo + 1
 }
 
 export function migrateSerialProducts(products: Product[]): Product[] {
-  let max = products.reduce(
-    (m, p) =>
-      typeof p.serialNo === 'number' && Number.isFinite(p.serialNo)
-        ? Math.max(m, p.serialNo)
-        : m,
+  let maxSerialNo = products.reduce(
+    (currentMax, product) =>
+      typeof product.serialNo === 'number' &&
+      Number.isFinite(product.serialNo)
+        ? Math.max(currentMax, product.serialNo)
+        : currentMax,
     0,
   )
-  return products.map((p) => {
-    if (typeof p.serialNo === 'number' && Number.isFinite(p.serialNo)) {
-      return p
+  return products.map((product) => {
+    if (
+      typeof product.serialNo === 'number' &&
+      Number.isFinite(product.serialNo)
+    ) {
+      return product
     }
-    max += 1
-    return { ...p, serialNo: max }
+    maxSerialNo += 1
+    return { ...product, serialNo: maxSerialNo }
   })
 }
 
 export function migrateSerialPatients(patients: Patient[]): Patient[] {
-  let max = patients.reduce(
-    (m, x) =>
-      typeof x.serialNo === 'number' && Number.isFinite(x.serialNo)
-        ? Math.max(m, x.serialNo)
-        : m,
+  let maxSerialNo = patients.reduce(
+    (currentMax, patient) =>
+      typeof patient.serialNo === 'number' &&
+      Number.isFinite(patient.serialNo)
+        ? Math.max(currentMax, patient.serialNo)
+        : currentMax,
     0,
   )
-  return patients.map((x) => {
-    if (typeof x.serialNo === 'number' && Number.isFinite(x.serialNo)) {
-      return x
+  return patients.map((patient) => {
+    if (
+      typeof patient.serialNo === 'number' &&
+      Number.isFinite(patient.serialNo)
+    ) {
+      return patient
     }
-    max += 1
-    return { ...x, serialNo: max }
+    maxSerialNo += 1
+    return { ...patient, serialNo: maxSerialNo }
   })
 }

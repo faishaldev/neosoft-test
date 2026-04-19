@@ -20,10 +20,10 @@ type Props = {
   editPrice: string
   onChangeEditName: (value: string) => void
   onChangeEditPrice: (value: string) => void
-  onStartEdit: (p: Product) => void
+  onStartEdit: (product: Product) => void
   onSaveEdit: () => void
   onCancelEdit: () => void
-  onToggleArchive: (p: Product) => void
+  onToggleArchive: (product: Product) => void
 }
 
 export function ProductTableSection({
@@ -103,14 +103,14 @@ export function ProductTableSection({
                 </td>
               </tr>
             ) : (
-              pageData.slice.map((p) => {
-                const editing = editingId === p.id
+              pageData.slice.map((product) => {
+                const editing = editingId === product.id
                 const interactionLocked =
                   Boolean(editingId) && !editing
                 return (
                   <ProductTableRow
-                    key={p.id}
-                    p={p}
+                    key={product.id}
+                    product={product}
                     editing={editing}
                     editName={editName}
                     editPrice={editPrice}

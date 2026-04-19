@@ -6,10 +6,12 @@ import { triggerDownload } from './download'
 
 const FORMAT = 'neosoft-laporan' as const
 
-function esc(s: string): string {
-  const t = String(s)
-  if (/[",\n\r]/.test(t)) return `"${t.replace(/"/g, '""')}"`
-  return t
+function escapeCsvValue(value: string): string {
+  const normalizedValue = String(value)
+  if (/[",\n\r]/.test(normalizedValue)) {
+    return `"${normalizedValue.replace(/"/g, '""')}"`
+  }
+  return normalizedValue
 }
 
 export function exportReportJson(
@@ -28,11 +30,11 @@ export function exportReportJson(
         omzetRp: grandTotal,
       },
       transaksi: transactions,
-      agregasiPerBarang: salesByProduct.map((r) => ({
-        kodeBarang: r.id,
-        nama: r.name,
-        qtyTerjual: r.qty,
-        subtotalRp: r.revenue,
+      agregasiPerBarang: salesByProduct.map((productSale) => ({
+        kodeBarang: productSale.id,
+        nama: productSale.name,
+        qtyTerjual: productSale.qty,
+        subtotalRp: productSale.revenue,
       })),
     },
     null,
@@ -43,28 +45,33 @@ export function exportReportJson(
 export function exportTransactionsCsv(transactions: Transaction[]): string {
   const header =
     'invoiceNo,tanggalISO,tanggalTampilan,idPasien,namaPasien,totalRp'
-  const lines = transactions.map((t) =>
+  const lines = transactions.map((transaction) =>
     [
-      esc(t.invoiceNo),
-      esc(t.dateISO),
-      esc(formatDateId(t.dateISO)),
-      esc(t.patientId),
-      esc(t.patientName),
-      String(txLineTotal(t)),
+      escapeCsvValue(transaction.invoiceNo),
+      escapeCsvValue(transaction.dateISO),
+      escapeCsvValue(formatDateId(transaction.dateISO)),
+      escapeCsvValue(transaction.patientId),
+      escapeCsvValue(transaction.patientName),
+      String(txLineTotal(transaction)),
     ].join(','),
   )
   return `\ufeff${header}\r\n${lines.join('\r\n')}\r\n`
 }
 
-export function exportAggregationCsv(rows: ProductSaleAgg[]): string {
+export function exportAggregationCsv(productSales: ProductSaleAgg[]): string {
   const header = 'kodeBarang,namaBarang,qtyTerjual,subtotalRp'
-  const lines = rows.map((r) =>
-    [esc(r.id), esc(r.name), String(r.qty), String(r.revenue)].join(','),
+  const lines = productSales.map((productSale) =>
+    [
+      escapeCsvValue(productSale.id),
+      escapeCsvValue(productSale.name),
+      String(productSale.qty),
+      String(productSale.revenue),
+    ].join(','),
   )
   return `\ufeff${header}\r\n${lines.join('\r\n')}\r\n`
 }
 
-function stamp(): string {
+function buildDateStamp(): string {
   return new Date().toISOString().slice(0, 10)
 }
 
@@ -74,7 +81,7 @@ export function downloadReportJson(
   grandTotal: number,
 ) {
   triggerDownload(
-    `laporan-${stamp()}.json`,
+    `laporan-${buildDateStamp()}.json`,
     exportReportJson(transactions, salesByProduct, grandTotal),
     'application/json',
   )
@@ -82,16 +89,18 @@ export function downloadReportJson(
 
 export function downloadTransactionsCsv(transactions: Transaction[]) {
   triggerDownload(
-    `laporan-transaksi-${stamp()}.csv`,
+    `laporan-transaksi-${buildDateStamp()}.csv`,
     exportTransactionsCsv(transactions),
     'text/csv',
   )
 }
 
-export function downloadAggregationCsv(rows: ProductSaleAgg[]) {
+export function downloadAggregationCsv(
+  productSales: ProductSaleAgg[],
+) {
   triggerDownload(
-    `laporan-agregasi-${stamp()}.csv`,
-    exportAggregationCsv(rows),
+    `laporan-agregasi-${buildDateStamp()}.csv`,
+    exportAggregationCsv(productSales),
     'text/csv',
   )
 }

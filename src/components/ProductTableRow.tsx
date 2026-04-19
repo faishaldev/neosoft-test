@@ -4,21 +4,21 @@ import { TableInlineActions } from './TableInlineActions'
 import { rowStatusClass } from '../utils/rowStatusClass'
 
 type Props = {
-  p: Product
+  product: Product
   editing: boolean
   editName: string
   editPrice: string
   interactionLocked: boolean
   onChangeEditName: (v: string) => void
   onChangeEditPrice: (v: string) => void
-  onStartEdit: (p: Product) => void
+  onStartEdit: (product: Product) => void
   onSaveEdit: () => void
   onCancelEdit: () => void
-  onToggleArchive: (p: Product) => void
+  onToggleArchive: (product: Product) => void
 }
 
 export function ProductTableRow({
-  p,
+  product,
   editing,
   editName,
   editPrice,
@@ -31,19 +31,19 @@ export function ProductTableRow({
   onToggleArchive,
 }: Props) {
   return (
-    <tr className={rowStatusClass(p.archived, editing)}>
-      <td className="num">{p.serialNo}</td>
+    <tr className={rowStatusClass(product.archived, editing)}>
+      <td className="num">{product.serialNo}</td>
       <td>
-        <span className="product-cell__code">{p.id}</span>
+        <span className="product-cell__code">{product.id}</span>
       </td>
       <td>
         {editing ? (
           <>
-            <label className="sr-only" htmlFor={`edit-name-${p.id}`}>
+            <label className="sr-only" htmlFor={`edit-name-${product.id}`}>
               Nama barang
             </label>
             <input
-              id={`edit-name-${p.id}`}
+              id={`edit-name-${product.id}`}
               className="table-edit-input"
               autoComplete="off"
               value={editName}
@@ -52,8 +52,8 @@ export function ProductTableRow({
           </>
         ) : (
           <span className="product-cell__name">
-            {p.name}
-            {p.archived ? (
+            {product.name}
+            {product.archived ? (
               <span className="badge badge--muted">Arsip</span>
             ) : null}
           </span>
@@ -62,11 +62,11 @@ export function ProductTableRow({
       <td className="num table-cell--money">
         {editing ? (
           <>
-            <label className="sr-only" htmlFor={`edit-price-${p.id}`}>
+            <label className="sr-only" htmlFor={`edit-price-${product.id}`}>
               Harga
             </label>
             <input
-              id={`edit-price-${p.id}`}
+              id={`edit-price-${product.id}`}
               className={
                 'table-edit-input table-edit-input--num ' +
                 'table-edit-input--money'
@@ -78,7 +78,7 @@ export function ProductTableRow({
             />
           </>
         ) : (
-          formatIdr(p.price)
+          formatIdr(product.price)
         )}
       </td>
       <td className="table-actions-cell">
@@ -86,11 +86,11 @@ export function ProductTableRow({
           editing={editing}
           disableEdit={interactionLocked}
           disableArchive={interactionLocked}
-          archived={Boolean(p.archived)}
+          archived={Boolean(product.archived)}
           onSave={onSaveEdit}
           onCancel={onCancelEdit}
-          onEdit={() => onStartEdit(p)}
-          onToggleArchive={() => onToggleArchive(p)}
+          onEdit={() => onStartEdit(product)}
+          onToggleArchive={() => onToggleArchive(product)}
         />
       </td>
     </tr>

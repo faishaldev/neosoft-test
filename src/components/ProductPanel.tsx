@@ -11,14 +11,14 @@ import {
 export type ProductPanelProps = ProductPanelModelProps
 
 export function ProductPanel(props: ProductPanelProps) {
-  const m = useProductPanelModel(props)
+  const productPanelModel = useProductPanelModel(props)
 
   return (
     <section className="panel" aria-labelledby="h-barang">
       <Toast
-        message={m.message}
-        onDismiss={m.clearFlash}
-        variant={m.variant}
+        message={productPanelModel.message}
+        onDismiss={productPanelModel.clearFlash}
+        variant={productPanelModel.variant}
       />
 
       <h2 id="h-barang">Daftar harga barang</h2>
@@ -34,49 +34,55 @@ export function ProductPanel(props: ProductPanelProps) {
           'CSV nama,harga (titik koma atau koma). JSON: baris atau objek ' +
           'rows — seperti ekspor. Impor = kode & No baru.'
         }
-        onExportJson={m.exportJson}
-        onExportCsv={m.exportCsv}
-        onImportFile={m.handleImportFile}
+        onExportJson={productPanelModel.exportJson}
+        onExportCsv={productPanelModel.exportCsv}
+        onImportFile={productPanelModel.handleImportFile}
       />
 
       <ProductAddForm
-        name={m.name}
-        price={m.price}
-        errors={m.errors}
-        onNameChange={(v) => {
-          m.setName(v)
-          m.setErrors((prev) => ({ ...prev, name: undefined }))
+        name={productPanelModel.name}
+        price={productPanelModel.price}
+        errors={productPanelModel.errors}
+        onNameChange={(nextName) => {
+          productPanelModel.setName(nextName)
+          productPanelModel.setErrors((prevErrors) => ({
+            ...prevErrors,
+            name: undefined,
+          }))
         }}
-        onPriceChange={(v) => {
-          m.setPrice(v)
-          m.setErrors((prev) => ({ ...prev, price: undefined }))
+        onPriceChange={(nextPrice) => {
+          productPanelModel.setPrice(nextPrice)
+          productPanelModel.setErrors((prevErrors) => ({
+            ...prevErrors,
+            price: undefined,
+          }))
         }}
-        onSubmit={m.handleSubmit}
+        onSubmit={productPanelModel.handleSubmit}
       />
 
       <div className="table-block">
         <TableSearchBar
           id="product-table-search"
-          value={m.tableSearch}
-          onChange={m.setTableSearch}
+          value={productPanelModel.tableSearch}
+          onChange={productPanelModel.setTableSearch}
           placeholder="Cari — No, kode, nama, nominal, atau arsip…"
         />
         <ProductTableSection
-          key={m.tableSearch}
-          products={m.products}
-          filteredProducts={m.filteredProducts}
-          sorted={m.sorted}
-          sort={m.sort}
-          toggle={m.toggle}
-          editingId={m.editingId}
-          editName={m.editName}
-          editPrice={m.editPrice}
-          onChangeEditName={m.setEditName}
-          onChangeEditPrice={m.setEditPrice}
-          onStartEdit={m.startEdit}
-          onSaveEdit={m.saveEdit}
-          onCancelEdit={m.cancelEdit}
-          onToggleArchive={m.toggleArchive}
+          key={productPanelModel.tableSearch}
+          products={productPanelModel.products}
+          filteredProducts={productPanelModel.filteredProducts}
+          sorted={productPanelModel.sorted}
+          sort={productPanelModel.sort}
+          toggle={productPanelModel.toggle}
+          editingId={productPanelModel.editingId}
+          editName={productPanelModel.editName}
+          editPrice={productPanelModel.editPrice}
+          onChangeEditName={productPanelModel.setEditName}
+          onChangeEditPrice={productPanelModel.setEditPrice}
+          onStartEdit={productPanelModel.startEdit}
+          onSaveEdit={productPanelModel.saveEdit}
+          onCancelEdit={productPanelModel.cancelEdit}
+          onToggleArchive={productPanelModel.toggleArchive}
         />
       </div>
     </section>
