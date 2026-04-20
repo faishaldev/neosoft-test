@@ -1,6 +1,7 @@
 import type { InvoicePreviewRow } from '../lib/draftTx'
 import type { Patient } from '../lib/types'
 import { formatDateId, formatIdr } from '../utils/format'
+import { EmptyHint } from './EmptyHint'
 
 type Props = {
   patient: Patient | undefined
@@ -16,60 +17,82 @@ export function InvoicePreview({
   const today = formatDateId(new Date().toISOString())
 
   return (
-    <div className="invoice">
-      <h3 className="invoice__title">Pratinjau invoice</h3>
-      <div className="invoice__hdr">
+    <div className="table-block tx-invoice-summary">
+      <div className="tx-invoice-meta">
         <div>
           <div>
-            <span className="lbl">no Invoice :</span>{' '}
+            <span className="tx-invoice-meta__lbl">no Invoice :</span>{' '}
             <span className="mono">(dibuat saat simpan)</span>
           </div>
           <div>
-            <span className="lbl">tanggal</span> {today}
+            <span className="tx-invoice-meta__lbl">tanggal</span>{' '}
+            <span className="mono">{today}</span>
           </div>
         </div>
         <div>
           <div>
-            <span className="lbl">ID pasien</span>{' '}
+            <span className="tx-invoice-meta__lbl">ID pasien</span>{' '}
             <span className="mono">{patient?.id ?? '—'}</span>
           </div>
           <div>
-            <span className="lbl">nama pasien</span>{' '}
+            <span className="tx-invoice-meta__lbl">nama pasien</span>{' '}
             {patient?.name ?? '—'}
           </div>
         </div>
       </div>
-      {rows.length === 0 ? (
-        <p className="invoice__empty">Tambahkan barang untuk melihat pratinjau.</p>
-      ) : (
-        <div className="invoice__cards">
-          {rows.map((r, i) => (
-            <article
-              key={`${r.name}-${r.price}-${r.qty}-${i}`}
-              className="invoice-item-card"
-            >
-              <p className="invoice-item-card__name">{r.name}</p>
-              <dl className="invoice-item-card__meta">
-                <div>
-                  <dt>Harga</dt>
-                  <dd>{formatIdr(r.price)}</dd>
-                </div>
-                <div>
-                  <dt>Qty</dt>
-                  <dd>{r.qty}</dd>
-                </div>
-                <div>
-                  <dt>Subtotal</dt>
-                  <dd>{formatIdr(r.sub)}</dd>
-                </div>
-              </dl>
-            </article>
-          ))}
-        </div>
-      )}
-      <div className="invoice__total-card">
-        <span className="invoice__total-label">TOTAL</span>
-        <strong className="invoice__total-val">{formatIdr(previewTotal)}</strong>
+
+      <div className="table-wrap">
+        <table className="data-table data-table--invoice">
+          <caption className="sr-only">
+            Ringkasan baris transaksi: item, harga, jumlah, subtotal.
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Item yang dibeli</th>
+              <th scope="col" className="num">
+                Harga
+              </th>
+              <th scope="col" className="num">
+                Jumlah
+              </th>
+              <th scope="col" className="num">
+                Subtotal
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.length === 0 ? (
+              <tr>
+                <td colSpan={4}>
+                  <EmptyHint
+                    title="Belum ada baris"
+                    hint="Tambahkan barang pada formulir di atas."
+                  />
+                </td>
+              </tr>
+            ) : (
+              rows.map((r, i) => (
+                <tr key={`${r.name}-${r.price}-${r.qty}-${i}`}>
+                  <td className="data-table__cell-wrap">{r.name}</td>
+                  <td className="num">{formatIdr(r.price)}</td>
+                  <td className="num">{r.qty}</td>
+                  <td className="num">{formatIdr(r.sub)}</td>
+                </tr>
+              ))
+            )}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colSpan={2} />
+              <td className="num tx-invoice-foot__label">
+                <strong>TOTAL</strong>
+              </td>
+              <td className="num tx-invoice-foot__total">
+                <strong>{formatIdr(previewTotal)}</strong>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
       </div>
     </div>
   )
